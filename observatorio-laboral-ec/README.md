@@ -6,6 +6,22 @@ expansión, modelos de machine learning explicables, API, app web y monitorizaci
 
 > 🚧 **En construcción.** El estado de cada fase está abajo y el detalle, en la [guía paso a paso](docs/GUIA_PASO_A_PASO.md).
 
+## Resultados hasta ahora
+
+**Las tasas oficiales del INEC se reproducen desde los microdatos** (mayo de 2026, 27.369 personas encuestadas que
+representan a 19,09 millones de habitantes), aplicando la sintaxis oficial y el factor de expansión:
+
+| Indicador | Calculado | INEC | Diferencia |
+|---|---|---|---|
+| Tasa de participación global | 65,90 % | 65,9 % | 0,00 |
+| Tasa de empleo adecuado | 36,60 % | 36,6 % | 0,00 |
+| Tasa de subempleo | 18,32 % | 18,3 % | +0,02 |
+| Tasa de desempleo | 3,06 % | 3,1 % | −0,04 |
+
+Es la base de todo lo demás: si un indicador no coincide con el oficial, nada construido encima es fiable.
+Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
+variables: [diccionario](docs/datos/diccionario.md).
+
 ## Arquitectura
 
 ```mermaid
@@ -26,8 +42,8 @@ flowchart LR
 | Fase | Contenido | Estado |
 |---|---|---|
 | 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
-| 1 · Comprensión de los datos | Fuentes, diccionario, EDA, factores de expansión, tasas oficiales reproducidas | 🔄 En curso |
-| 2 · Ingesta | Descarga automática e idempotente | ⏳ |
+| 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
+| 2 · Ingesta | Descarga automática e idempotente | 🔄 Siguiente |
 | 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella) | ⏳ |
 | 4 · Calidad y orquestación | Tests, frescura, alertas, pipeline programado | ⏳ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | ⏳ |
@@ -60,7 +76,8 @@ pytest
 ## Estructura
 
 ```
-src/observatorio/   Código Python (configuración, ingesta…)
+src/observatorio/   Código Python (configuración, indicadores oficiales, ingesta…)
+scripts/            Utilidades (validación contra las cifras oficiales del INEC)
 dbt/                Transformaciones SQL y tests de datos
 ml/  api/  app/     Modelos, API y aplicación web
 monitoring/  bi/    Monitorización y tableros

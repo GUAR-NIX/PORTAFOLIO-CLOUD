@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: observatorio-laboral-ec/requirements*.txt
       - run: pip install -r requirements-dev.txt
       - name: Ruff
-        run: ruff check src tests
+        run: ruff check src tests scripts
       - name: Pytest
         run: pytest -rs
 
