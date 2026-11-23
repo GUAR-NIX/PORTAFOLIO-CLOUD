@@ -1,0 +1,26 @@
+provincia_cod,provincia,region
+01,Azuay,Sierra
+02,Bolívar,Sierra
+03,Cañar,Sierra
+04,Carchi,Sierra
+05,Cotopaxi,Sierra
+06,Chimborazo,Sierra
+07,El Oro,Costa
+08,Esmeraldas,Costa
+09,Guayas,Costa
+10,Imbabura,Sierra
+11,Loja,Sierra
+12,Los Ríos,Costa
+13,Manabí,Costa
+14,Morona Santiago,Amazonía
+15,Napo,Amazonía
+16,Pastaza,Amazonía
+17,Pichincha,Sierra
+18,Tungurahua,Sierra
+19,Zamora Chinchipe,Amazonía
+20,Galápagos,Insular
+21,Sucumbíos,Amazonía
+22,Orellana,Amazonía
+23,Santo Domingo de los Tsáchilas,Costa
+24,Santa Elena,Costa
+90,Zonas no delimitadas,Sin región

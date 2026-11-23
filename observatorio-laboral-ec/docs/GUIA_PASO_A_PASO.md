@@ -111,3 +111,46 @@ informalidad entre el 51 % y el 58 % del empleo en estos 41 meses.
   PostgreSQL admite como máximo 65.535 por consulta. La transacción se deshizo sola (nada quedó a medias) y se
   cambió a `COPY`, más rápido y sin ese límite.
 - *Espacio*: la tabla cruda ocupa el 44 % de la capa gratuita; las tablas de dbt deberán ser agregadas o vistas.
+
+## Fase 3 · Modelado con dbt (2026-11-23)
+
+**Objetivo:** convertir la tabla cruda en un modelo estrella documentado y probado, del que lean BI, ML y la API.
+
+| Capa | Modelo | Materialización | Qué hace |
+|---|---|---|---|
+| seeds | `condicion_actividad`, `catalogos`, `provincias`, `tasas_oficiales_inec` | tabla | Etiquetas oficiales (del `.sav`), división territorial y cifras del INEC para el test |
+| staging | `stg_enemdu__personas` | vista | Nombres y tipos; código de ciudad de 6 dígitos; códigos especiales del ingreso |
+| intermediate | `int_personas_clasificadas` | vista | Indicadores 0/1 de la sintaxis oficial y grupo de edad |
+| marts | `fct_mercado_laboral` | tabla | Hecho agregado: mes × sexo × área × provincia × edad × instrucción, con **poblaciones** (no tasas) |
+| marts | `indicadores_nacionales`, `dim_periodo`, `dim_provincia` | tabla | Tasas nacionales mensuales y dimensiones |
+
+Ejecución: `.\scripts\dbt.ps1 build` (carga las credenciales de `.env` solo en ese proceso).
+
+**Tests (40, todos en verde):** claves únicas y no nulas, valores aceptados, integridad referencial, longitud del código
+de ciudad, identidades contables (PEA = empleo + desempleo; empleo = suma de sus categorías; PET = PEA + PEI) y dos
+tests de negocio:
+- `assert_poblacion_conservada`: al agregar no se pierde ni se duplica población (suma del factor de expansión igual a
+  la de los microdatos, mes a mes);
+- `assert_tasas_iguales_al_inec`: las tasas del mart, redondeadas como las publica el INEC, son iguales a las oficiales.
+
+| Medida | Valor |
+|---|---|
+| `dbt build` | 4 seeds, 6 modelos, 30 tests de datos: 40/40 OK en 40 s |
+| Hecho `fct_mercado_laboral` | 73.630 filas, 13 MB (frente a 227 MB de la tabla cruda) |
+| Base de datos completa en Neon | 248 MB de 512 MB |
+
+**Decisiones**
+- El hecho guarda **poblaciones expandidas y no tasas**: sumar o promediar tasas da resultados incorrectos; con
+  poblaciones, cualquier tasa se recalcula bien a cualquier nivel (provincia, sexo, edad…).
+- Staging e intermediate son **vistas**: no ocupan espacio en la capa gratuita y reflejan siempre la tabla cruda.
+
+**Incidencias**
+- *Ciudad con 5 dígitos*: el INEC publica `ciudad` como número en los 41 meses, y las provincias 01–09 pierden el cero
+  inicial (`10150` es Azuay, `010150`, no Imbabura). Se detectó al comparar la distribución de provincias; `upm`, que
+  sí conserva los ceros, confirmó la corrección `lpad(ciudad, 6, '0')`. Un test vigila la longitud.
+- *Códigos especiales del ingreso*: el `.sav` oficial define `999999` = «No informa» y `-1` = «Gasta más de lo que
+  gana» (5.052 casos). Ambos pasan a nulo, y el motivo se guarda en otra columna, para no distorsionar promedios.
+- *Doble redondeo*: el mart guardaba las tasas con 2 decimales y el test las redondeaba a 1. En abril de 2026 el
+  subempleo real es 19,549 %: 19,55 → 19,6, cuando el INEC publica 19,5. **El propio test lo detectó.** Ahora el mart
+  guarda la precisión completa y solo se redondea al mostrar.
+- *YAML*: una descripción con «fuente:» sin comillas rompía el archivo; se entrecomilló.

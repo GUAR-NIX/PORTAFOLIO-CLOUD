@@ -1,0 +1,14 @@
+variable,codigo,etiqueta
+sexo,1,Hombre
+sexo,2,Mujer
+area,1,Urbana
+area,2,Rural
+sector_empleo,1,Sector formal
+sector_empleo,2,Sector informal
+sector_empleo,3,Empleo doméstico
+sector_empleo,4,No clasificado por sector
+nivel_instruccion,1,Ninguno
+nivel_instruccion,2,Centro de alfabetización
+nivel_instruccion,3,Educación básica
+nivel_instruccion,4,Educación media/bachillerato
+nivel_instruccion,5,Superior

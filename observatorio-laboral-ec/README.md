@@ -26,6 +26,10 @@ publicada coinciden en las 4 tasas con diferencia 0,0.
 
 **En la nube:** 1.158.484 filas cargadas en PostgreSQL (Neon) con `COPY` en 71 s, carga idempotente y verificada
 dentro de la base: 0 duplicados y las tasas calculadas en SQL iguales a las del INEC (20 de 20).
+
+**Modelo estrella con dbt:** staging → intermediate → marts, con un hecho agregado de 73.630 filas (13 MB) y
+**40/40 tests en verde**, entre ellos uno que compara las tasas del mart con las oficiales del INEC. Ese test detectó
+un error real de doble redondeo antes de que llegara a ningún dashboard.
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
@@ -51,8 +55,8 @@ flowchart LR
 | 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
 | 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
 | 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
-| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella) | 🔄 Siguiente |
-| 4 · Calidad y orquestación | Tests, frescura, alertas, pipeline programado | ⏳ |
+| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
+| 4 · Calidad y orquestación | Pipeline programado en GitHub Actions, frescura, alertas | 🔄 Siguiente |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | ⏳ |
 | 6 · ML: informalidad | Clasificación explicable (SHAP) con análisis de equidad | ⏳ |
 | 7 · ML: pronóstico | Tasa de desempleo con *backtesting* | ⏳ |

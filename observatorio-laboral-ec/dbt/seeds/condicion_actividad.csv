@@ -1,0 +1,11 @@
+condact,condicion_actividad,grupo,es_pea,es_empleo
+0,Menores de 15 años,Fuera de la PET,false,false
+1,Empleo adecuado/pleno,Empleo,true,true
+2,Subempleo por insuficiencia de tiempo de trabajo,Empleo,true,true
+3,Subempleo por insuficiencia de ingresos,Empleo,true,true
+4,Otro empleo no pleno,Empleo,true,true
+5,Empleo no remunerado,Empleo,true,true
+6,Empleo no clasificado,Empleo,true,true
+7,Desempleo abierto,Desempleo,true,false
+8,Desempleo oculto,Desempleo,true,false
+9,Población económicamente inactiva,Inactividad,false,false

@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: int_personas_clasificadas
+    description: >
+      Personas con los indicadores 0/1 de la sintaxis oficial del INEC y el grupo de edad. Es una vista: no ocupa
+      espacio y siempre refleja la tabla cruda.
+    data_tests:
+      - expression_is_true:
+          arguments:
+            expression: "ind_pea = ind_empleo + ind_desempleo"
+          config: {severity: error}
+      - expression_is_true:
+          arguments:
+            expression: >-
+              ind_empleo = ind_empleo_adecuado + ind_subempleo + ind_otro_no_pleno + ind_no_remunerado
+              + ind_no_clasificado
+      - expression_is_true:
+          arguments:
+            expression: "ind_pet = ind_pea + ind_pei"

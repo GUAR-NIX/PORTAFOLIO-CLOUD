@@ -1,0 +1,28 @@
+version: 2
+
+seeds:
+  - name: condicion_actividad
+    description: Códigos de `condact` según la sintaxis oficial del INEC (etiquetas del .sav de la ENEMDU).
+    config:
+      column_types: {condact: integer, es_pea: boolean, es_empleo: boolean}
+    columns:
+      - name: condact
+        data_tests: [unique, not_null]
+
+  - name: catalogos
+    description: "Etiquetas de las variables categóricas (fuente: enemdu_persona_2026_05.sav)."
+    config:
+      column_types: {codigo: integer}
+
+  - name: provincias
+    description: División político-administrativa del Ecuador (2 primeros dígitos del código de ciudad).
+    config:
+      column_types: {provincia_cod: varchar(2)}
+    columns:
+      - name: provincia_cod
+        data_tests: [unique, not_null]
+
+  - name: tasas_oficiales_inec
+    description: Tasas publicadas por el INEC; el test `assert_tasas_iguales_al_inec` compara el mart con ellas.
+    config:
+      column_types: {periodo: varchar(6)}

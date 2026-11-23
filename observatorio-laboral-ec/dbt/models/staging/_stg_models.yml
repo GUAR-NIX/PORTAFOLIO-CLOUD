@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_enemdu__personas
+    description: >
+      Una fila por persona encuestada y mes. Normaliza nombres y tipos, reconstruye el código de ciudad de 6 dígitos
+      (el INEC lo publica como número y las provincias 01-09 pierden el cero) y aparta los códigos especiales del
+      ingreso laboral.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "periodo || '-' || id_persona"
+    columns:
+      - name: ciudad_cod
+        data_tests:
+          - not_null
+          - longitud_exacta:
+              arguments: {longitud: 6}
+      - name: provincia_cod
+        data_tests:
+          - relationships:
+              arguments: {to: ref('provincias'), field: provincia_cod}
+      - name: condact
+        data_tests:
+          - accepted_values:
+              arguments: {values: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]}
+      - name: sexo_cod
+        data_tests:
+          - accepted_values:
+              arguments: {values: [1, 2]}
+      - name: area_cod
+        data_tests:
+          - accepted_values:
+              arguments: {values: [1, 2]}
+      - name: factor_expansion
+        data_tests: [not_null]
+      - name: ingreso_laboral
+        description: Ingreso laboral mensual en dólares; nulo si no se informó o el código no es un ingreso.

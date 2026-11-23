@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Microdatos de la ENEMDU cargados por `python -m observatorio.carga` (una fila por persona y mes).
+    schema: raw
+    tables:
+      - name: enemdu_personas
+        description: Tabla de personas de los datos abiertos de la ENEMDU (INEC), 18 columnas seleccionadas.
+        columns:
+          - name: periodo
+            data_tests: [not_null]
+          - name: id_persona
+            data_tests: [not_null]
+          - name: fexp
+            data_tests: [not_null]
+      - name: cargas
+        description: Registro de control de la carga (periodo, filas, fecha).
