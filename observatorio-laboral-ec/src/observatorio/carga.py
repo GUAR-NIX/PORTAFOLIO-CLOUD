@@ -42,6 +42,16 @@ def preparar(engine: Engine, esquema: str | None = "raw") -> None:
         ))
 
 
+def _copiar(con, tabla: str, df: pd.DataFrame) -> None:
+    """Carga masiva con COPY de PostgreSQL (psycopg 3), dentro de la transacción de SQLAlchemy."""
+    columnas = ", ".join(df.columns)
+    filas = df.astype(object).where(df.notna(), None).itertuples(index=False, name=None)
+    cursor = con.connection.driver_connection.cursor()
+    with cursor.copy(f"COPY {tabla} ({columnas}) FROM STDIN") as copia:
+        for fila in filas:
+            copia.write_row(fila)
+
+
 def cargar_periodo(engine: Engine, archivo: Path, esquema: str | None = "raw") -> tuple[str, int]:
     """Reemplaza un periodo completo en una sola transacción. Devuelve (periodo, filas)."""
     df = pd.read_parquet(archivo, columns=COLUMNAS)
@@ -51,10 +61,14 @@ def cargar_periodo(engine: Engine, archivo: Path, esquema: str | None = "raw") -
     periodo = str(periodos[0])
     tabla = _nombre(esquema, TABLA)
     with engine.begin() as con:
-        existe = con.dialect.has_table(con, TABLA, schema=esquema)
-        if existe:
+        if con.dialect.has_table(con, TABLA, schema=esquema):
             con.execute(text(f"DELETE FROM {tabla} WHERE periodo = :p"), {"p": periodo})
-        df.to_sql(TABLA, con, schema=esquema, if_exists="append", index=False, chunksize=5000, method="multi")
+        else:
+            df.head(0).to_sql(TABLA, con, schema=esquema, index=False)  # crea la tabla con tipos de pandas
+        if con.dialect.name == "postgresql":
+            _copiar(con, tabla, df)
+        else:  # SQLite en los tests
+            df.to_sql(TABLA, con, schema=esquema, if_exists="append", index=False, chunksize=1000)
         control = _nombre(esquema, TABLA_CARGAS)
         con.execute(text(f"DELETE FROM {control} WHERE periodo = :p"), {"p": periodo})
         con.execute(

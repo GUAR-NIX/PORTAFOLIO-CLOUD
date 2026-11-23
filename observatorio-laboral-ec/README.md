@@ -23,6 +23,9 @@ Es la base de todo lo demás: si un indicador no coincide con el oficial, nada c
 **Serie histórica automatizada:** la ingesta descarga y procesa **41 meses** (enero de 2023 a mayo de 2026) en 19 s;
 la segunda ejecución no descarga nada (idempotente, con manifiesto SHA-256). Los **5 meses** con cifra oficial
 publicada coinciden en las 4 tasas con diferencia 0,0.
+
+**En la nube:** 1.158.484 filas cargadas en PostgreSQL (Neon) con `COPY` en 71 s, carga idempotente y verificada
+dentro de la base: 0 duplicados y las tasas calculadas en SQL iguales a las del INEC (20 de 20).
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
@@ -47,8 +50,8 @@ flowchart LR
 |---|---|---|
 | 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
 | 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
-| 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL | 🔄 Falta la carga |
-| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella) | ⏳ |
+| 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
+| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella) | 🔄 Siguiente |
 | 4 · Calidad y orquestación | Tests, frescura, alertas, pipeline programado | ⏳ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | ⏳ |
 | 6 · ML: informalidad | Clasificación explicable (SHAP) con análisis de equidad | ⏳ |

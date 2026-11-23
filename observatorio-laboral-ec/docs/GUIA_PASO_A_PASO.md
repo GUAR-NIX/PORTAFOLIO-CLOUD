@@ -88,4 +88,26 @@ informalidad entre el 51 % y el 58 % del empleo en estos 41 meses.
   dentro del archivo, y pyarrow no podía unir ambas. Se pasó a un archivo por mes (`personas_AAAAMM.parquet`) con
   tipos fijos, para que todos los meses tengan exactamente el mismo esquema.
 
-**Pendiente de la fase:** cargar los Parquet en PostgreSQL (necesita crear la base de datos; ver ADR-0002).
+### Carga en PostgreSQL (Neon)
+
+4. **Base de datos.** Proyecto gratuito en **Neon** (PostgreSQL 18.7, AWS us-east-2), conexión directa (sin
+   *pooler*) y SSL obligatorio. Las credenciales viven solo en `.env`, que git ignora.
+5. **Cargador** [`carga.py`](../src/observatorio/carga.py) (`python -m observatorio.carga`): esquema `raw`; cada
+   periodo se reemplaza en una transacción (borrar + insertar), así que recargar no duplica; `raw.cargas` registra
+   periodo, filas y fecha. En PostgreSQL usa **COPY** (carga masiva nativa); en los tests, SQLite en memoria.
+6. **Verificación dentro de la base** ([`verificar_carga.py`](../scripts/verificar_carga.py)): volumen, coherencia
+   con `raw.cargas`, duplicados y las tasas oficiales calculadas **en SQL**.
+
+| Medida | Valor |
+|---|---|
+| Filas cargadas | **1.158.484** (41 periodos) en 71 s |
+| Duplicados tras recargar un mes | **0** |
+| Coherencia con `raw.cargas` | Sí |
+| Tasas en SQL frente al INEC (5 meses × 4 tasas) | **20 de 20 iguales** |
+| Espacio en Neon | 227 MB de 512 MB gratuitos |
+
+**Incidencias**
+- *Límite de parámetros*: el primer intento insertaba bloques de 5.000 filas × 18 columnas (90.000 parámetros) y
+  PostgreSQL admite como máximo 65.535 por consulta. La transacción se deshizo sola (nada quedó a medias) y se
+  cambió a `COPY`, más rápido y sin ese límite.
+- *Espacio*: la tabla cruda ocupa el 44 % de la capa gratuita; las tablas de dbt deberán ser agregadas o vistas.
