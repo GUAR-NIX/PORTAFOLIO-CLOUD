@@ -16,3 +16,10 @@ sources:
             data_tests: [not_null]
       - name: cargas
         description: Registro de control de la carga (periodo, filas, fecha).
+        # El INEC publica la ENEMDU cada mes con unas semanas de retraso: más de 45 días sin cargar nada es raro
+        # (aviso) y más de 75 indica que el pipeline o la fuente fallan (error).
+        config:
+          loaded_at_field: "cargado_utc::timestamptz"
+          freshness:
+            warn_after: {count: 45, period: day}
+            error_after: {count: 75, period: day}

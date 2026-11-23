@@ -61,6 +61,10 @@ def test_rango_cruza_el_fin_de_anio():
     assert [m.clave for m in rango(Mes(2024, 11), Mes(2025, 2))] == ["202411", "202412", "202501", "202502"]
 
 
+def test_mes_actual():
+    assert Mes.desde_texto("actual") == Mes.actual()
+
+
 def test_mes_no_valido():
     with pytest.raises(ValueError):
         Mes.desde_texto("2025-13")

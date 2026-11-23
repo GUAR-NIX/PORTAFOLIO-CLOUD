@@ -79,23 +79,39 @@ def cargar_periodo(engine: Engine, archivo: Path, esquema: str | None = "raw") -
     return periodo, len(df)
 
 
-def ejecutar(engine: Engine, carpeta: Path, solo: str | None = None, esquema: str | None = "raw") -> list:
+def periodos_cargados(engine: Engine, esquema: str | None = "raw") -> set[str]:
+    with engine.connect() as con:
+        return {r[0] for r in con.execute(text(f"SELECT periodo FROM {_nombre(esquema, TABLA_CARGAS)}"))}
+
+
+def ejecutar(
+    engine: Engine,
+    carpeta: Path,
+    solo: str | None = None,
+    esquema: str | None = "raw",
+    solo_faltantes: bool = False,
+) -> list:
     preparar(engine, esquema)
     archivos = sorted(carpeta.glob("personas_*.parquet"))
-    if solo:
-        archivos = [a for a in archivos if a.stem.endswith(solo)]
     if not archivos:
         raise FileNotFoundError(f"No hay Parquet en {carpeta}: ejecuta antes la ingesta")
+    if solo:
+        archivos = [a for a in archivos if a.stem.endswith(solo)]
+    if solo_faltantes:
+        ya = periodos_cargados(engine, esquema)
+        archivos = [a for a in archivos if a.stem.removeprefix("personas_") not in ya]
+        log.info("%d periodos nuevos por cargar (%d ya estaban)", len(archivos), len(ya))
     return [cargar_periodo(engine, a, esquema) for a in archivos]
 
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Carga los microdatos procesados en PostgreSQL (esquema raw).")
     p.add_argument("--solo", help="periodo AAAAMM")
+    p.add_argument("--solo-faltantes", action="store_true", help="solo periodos que no están en raw.cargas")
     a = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     engine = create_engine(config_bd().url, pool_pre_ping=True)
-    resultado = ejecutar(engine, DATOS_PROCESADOS / "personas", a.solo)
+    resultado = ejecutar(engine, DATOS_PROCESADOS / "personas", a.solo, solo_faltantes=a.solo_faltantes)
     total = sum(n for _, n in resultado)
     print(f"{len(resultado)} periodos cargados · {total:,} filas")
 

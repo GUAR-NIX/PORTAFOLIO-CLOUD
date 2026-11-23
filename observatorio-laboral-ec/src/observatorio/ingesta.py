@@ -49,7 +49,14 @@ class Mes:
     mes: int
 
     @classmethod
+    def actual(cls) -> Mes:
+        hoy = datetime.now(UTC)
+        return cls(hoy.year, hoy.month)
+
+    @classmethod
     def desde_texto(cls, texto: str) -> Mes:
+        if texto == "actual":
+            return cls.actual()
         anio, mes = texto.split("-")
         m = cls(int(anio), int(mes))
         if not 1 <= m.mes <= 12:
@@ -215,7 +222,7 @@ def ejecutar(
 def main() -> None:
     p = argparse.ArgumentParser(description="Descarga y procesa los microdatos mensuales de la ENEMDU.")
     p.add_argument("--desde", default="2023-01", help="AAAA-MM (por defecto 2023-01)")
-    p.add_argument("--hasta", required=True, help="AAAA-MM")
+    p.add_argument("--hasta", default="actual", help="AAAA-MM o «actual» (por defecto: el mes en curso)")
     a = p.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     r = ejecutar(Mes.desde_texto(a.desde), Mes.desde_texto(a.hasta))

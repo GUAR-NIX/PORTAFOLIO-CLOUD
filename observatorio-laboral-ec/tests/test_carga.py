@@ -53,6 +53,15 @@ def test_recarga_reemplaza_un_periodo_corregido(tmp_path, motor):
     assert contar(motor, "select count(*) from enemdu_personas where periodo = '202605'") == 4
 
 
+def test_solo_faltantes_no_recarga_lo_que_ya_esta(tmp_path, motor):
+    parquet_mes(tmp_path, "202604", 3)
+    ejecutar(motor, tmp_path, esquema=None)
+    parquet_mes(tmp_path, "202605", 2)  # el INEC publica un mes nuevo
+    r = ejecutar(motor, tmp_path, esquema=None, solo_faltantes=True)
+    assert r == [("202605", 2)]
+    assert contar(motor, "select count(*) from enemdu_personas") == 5
+
+
 def test_sin_datos_procesados_da_un_error_claro(tmp_path, motor):
     with pytest.raises(FileNotFoundError, match="ingesta"):
         ejecutar(motor, tmp_path, esquema=None)

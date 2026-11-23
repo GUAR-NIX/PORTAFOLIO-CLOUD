@@ -154,3 +154,24 @@ tests de negocio:
   subempleo real es 19,549 %: 19,55 → 19,6, cuando el INEC publica 19,5. **El propio test lo detectó.** Ahora el mart
   guarda la precisión completa y solo se redondea al mostrar.
 - *YAML*: una descripción con «fuente:» sin comillas rompía el archivo; se entrecomilló.
+
+## Fase 4 · Orquestación y calidad (2026-11-23)
+
+**Objetivo:** que el pipeline se ejecute solo, sin intervención, y avise si algo falla.
+
+Workflow [`observatorio-laboral-ec-pipeline.yml`](../../.github/workflows/observatorio-laboral-ec-pipeline.yml):
+cada **lunes a las 08:00 de Ecuador** (y bajo demanda con *Run workflow*):
+
+1. **Ingesta** `--hasta actual`: descubre sola los meses que el INEC vaya publicando (los no publicados cuentan
+   como «no publicado», no como error).
+2. **Carga** `--solo-faltantes`: consulta `raw.cargas` y solo carga los meses nuevos.
+3. **`dbt build`**: seeds, modelos y los 40 tests (incluida la comparación con el INEC).
+4. **`dbt source freshness`**: aviso si no se carga nada en 45 días y error a los 75 (el INEC publica cada mes).
+5. **Resumen** con las tasas de los últimos 6 meses en la página del run.
+
+Si un paso falla, el run queda en rojo y GitHub avisa por correo al dueño del repositorio. Las credenciales de Neon
+son *secrets* del repositorio (`NEON_PGHOST`, `NEON_PGDATABASE`, `NEON_PGUSER`, `NEON_PGPASSWORD`); un paso inicial
+falla con un mensaje claro si falta alguno.
+
+**Prueba local de la misma secuencia contra Neon:** ingesta 41 meses + 6 no publicados, 0 errores; carga 0 periodos
+nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
