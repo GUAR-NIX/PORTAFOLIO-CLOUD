@@ -19,6 +19,10 @@ representan a 19,09 millones de habitantes), aplicando la sintaxis oficial y el 
 | Tasa de desempleo | 3,06 % | 3,1 % | −0,04 |
 
 Es la base de todo lo demás: si un indicador no coincide con el oficial, nada construido encima es fiable.
+
+**Serie histórica automatizada:** la ingesta descarga y procesa **41 meses** (enero de 2023 a mayo de 2026) en 19 s;
+la segunda ejecución no descarga nada (idempotente, con manifiesto SHA-256). Los **5 meses** con cifra oficial
+publicada coinciden en las 4 tasas con diferencia 0,0.
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
@@ -43,7 +47,7 @@ flowchart LR
 |---|---|---|
 | 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
 | 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
-| 2 · Ingesta | Descarga automática e idempotente | 🔄 Siguiente |
+| 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL | 🔄 Falta la carga |
 | 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella) | ⏳ |
 | 4 · Calidad y orquestación | Tests, frescura, alertas, pipeline programado | ⏳ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | ⏳ |
