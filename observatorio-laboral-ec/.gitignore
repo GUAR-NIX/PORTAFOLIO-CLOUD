@@ -1,0 +1,41 @@
+# Entornos y secretos
+.venv/
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Datos: los crudos y procesados no se versionan (se regeneran con la ingesta)
+data/raw/
+data/processed/
+*.sav
+*.zip
+
+# dbt
+dbt/target/
+dbt/dbt_packages/
+dbt/logs/
+logs/
+
+# MLflow y modelos entrenados
+mlruns/
+mlartifacts/
+models/*.pkl
+models/*.joblib
+
+# Power BI temporales
+*.pbix.bak
+
+# Sistema
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -1,0 +1,53 @@
+name: observatorio-laboral-ec
+
+on:
+  push:
+    paths: ["observatorio-laboral-ec/**", ".github/workflows/observatorio-laboral-ec.yml"]
+  pull_request:
+    paths: ["observatorio-laboral-ec/**", ".github/workflows/observatorio-laboral-ec.yml"]
+defaults:
+  run:
+    working-directory: observatorio-laboral-ec
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: ruff + pytest
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: observatorio-laboral-ec/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: Ruff
+        run: ruff check src tests
+      - name: Pytest
+        run: pytest -rs
+
+  dbt:
+    name: dbt parse (sin base de datos)
+    runs-on: ubuntu-latest
+    env:
+      # Valores ficticios: "dbt parse" valida el proyecto sin conectarse a ninguna base de datos.
+      PGHOST: localhost
+      PGDATABASE: ci
+      PGUSER: ci
+      PGPASSWORD: ci-sin-secretos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: observatorio-laboral-ec/requirements*.txt
+      - run: pip install -r requirements.txt
+      - name: Validar proyecto dbt
+        working-directory: observatorio-laboral-ec/dbt
+        run: dbt parse --profiles-dir .

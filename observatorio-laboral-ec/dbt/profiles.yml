@@ -1,0 +1,24 @@
+# Perfil de dbt: toma la conexión de las mismas variables de entorno que Python (nada de credenciales aquí).
+observatorio:
+  target: "{{ env_var('DBT_TARGET', 'dev') }}"
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      dbname: "{{ env_var('PGDATABASE') }}"
+      user: "{{ env_var('PGUSER') }}"
+      password: "{{ env_var('PGPASSWORD') }}"
+      sslmode: "{{ env_var('PGSSLMODE', 'disable') }}"
+      schema: public
+      threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('PGHOST') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      dbname: "{{ env_var('PGDATABASE') }}"
+      user: "{{ env_var('PGUSER') }}"
+      password: "{{ env_var('PGPASSWORD') }}"
+      sslmode: require
+      schema: public
+      threads: 4
