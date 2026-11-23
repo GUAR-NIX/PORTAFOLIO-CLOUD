@@ -23,6 +23,7 @@ data/processed/
 dbt/target/
 dbt/dbt_packages/
 dbt/logs/
+dbt/.user.yml
 logs/
 
 # MLflow y modelos entrenados
