@@ -46,10 +46,8 @@ def modelo() -> dict:
 def elegir_idioma() -> str:
     pedido = st.query_params.get("lang", "es")
     inicial = pedido if pedido in IDIOMAS else "es"
-    _, derecha = st.columns([5, 1])
-    with derecha:
-        elegido = st.segmented_control("Idioma / Language", list(IDIOMAS), default=inicial,
-                                       format_func=IDIOMAS.get, label_visibility="collapsed")
+    elegido = st.segmented_control("Idioma / Language", list(IDIOMAS), default=inicial,
+                                   format_func=IDIOMAS.get, label_visibility="collapsed")
     elegido = elegido or inicial
     if st.query_params.get("lang") != elegido:
         st.query_params["lang"] = elegido
