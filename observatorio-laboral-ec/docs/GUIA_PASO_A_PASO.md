@@ -215,3 +215,18 @@ Neon. La verificación mostró que podía insertar y ver `raw`: Neon hace miembr
 creados en la consola, y la cuenta dueña no puede quitárselo (`permission denied to revoke role`). Se retiraron los
 permisos, se borró el rol y se creó con `CREATE ROLE … LOGIN PASSWORD` desde el SQL Editor, que nace sin privilegios.
 La contraseña se generó con `secrets` de Python (28 caracteres) y se guardó fuera del repositorio.
+
+**Informe de Power BI** ([`bi/observatorio_laboral.pbix`](../bi/observatorio_laboral.pbix), exportado a
+[PDF](../bi/observatorio_laboral.pdf)). Conexión PostgreSQL a Neon en modo Importar con `bi_lector`; el navegador
+solo muestra las tablas de `marts`, lo que confirma los permisos. Se importan `bi_mercado_laboral` e
+`indicadores_nacionales`. Cuatro páginas: Resumen, Brechas, Territorio y Calidad (capturas en
+[bi/README.md](../bi/README.md)).
+
+- *Error «el nombre ya se usa para una columna»*: una medida llamada `PEA` choca con la columna `pea` (Power BI no
+  distingue mayúsculas). Se renombraron a `Total PEA`, `Total PET`, `Total empleo` y `Total encuestados`.
+- *Tasas en la tabla de Calidad*: las columnas de `indicadores_nacionales` ya son tasas, así que se quitó la fila de
+  totales (sumar tasas no tiene sentido) y se formatearon a 1 decimal, como publica el INEC.
+- Comprobación cruzada: la tarjeta «Desempleo último mes» (3,1 %) y la tabla de Calidad dan el mismo valor desde dos
+  caminos distintos (medida DAX sobre el hecho y tasa calculada en dbt).
+
+Pendiente de la fase: versión pública en Looker Studio (requiere la cuenta de Google del autor).
