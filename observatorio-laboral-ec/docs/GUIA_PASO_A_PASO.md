@@ -266,8 +266,8 @@ varias veces, y daría métricas optimistas.
 | Regresión logística + splines de edad | 0,881 | 0,139 | 0,429 |
 | **LightGBM** (602 árboles) | **0,910** | **0,120** | **0,375** |
 
-**Calibración.** La informalidad estimada por mes sigue a la observada (mayo 2026: 52,95 % frente a 52,84 %; INEC
-52,8 %), y la curva de calibración está pegada a la diagonal.
+**Calibración.** La informalidad estimada por mes sigue a la observada (mayo 2026: 52,95 % frente a 52,84 % en los
+microdatos), y la curva de calibración está pegada a la diagonal.
 
 **Explicación (SHAP).** Rama de actividad > ocupación > provincia > instrucción > edad > sexo > área > estado
 civil. La educación superior y las ocupaciones directivas o administrativas empujan hacia la formalidad; no tener

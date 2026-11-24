@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English (summary)](README.en.md)
+
 # 🌦️ Modern data stack local: Dagster + dbt + DuckDB + MinIO sobre NOAA GHCN-Daily
 
 [![CI](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/modern-data-stack-dagster-dbt.yml/badge.svg)](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/modern-data-stack-dagster-dbt.yml)

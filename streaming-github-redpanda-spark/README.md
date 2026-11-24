@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English (summary)](README.en.md)
+
 # Streaming en tiempo real de la actividad de GitHub · Redpanda + Spark Structured Streaming + Delta Lake
 
 [![CI](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/streaming-github-redpanda-spark.yml/badge.svg)](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/streaming-github-redpanda-spark.yml)

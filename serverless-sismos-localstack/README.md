@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English (summary)](README.en.md)
+
 # 🌎 Alertas serverless de sismos · USGS → S3 → Lambda → DynamoDB → SNS
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB) ![Terraform](https://img.shields.io/badge/Terraform-1.13-844FBA) ![Pruebas](https://img.shields.io/badge/pytest-20%20passed-success) ![Nube](https://img.shields.io/badge/AWS-emulada%20con%20LocalStack-orange)

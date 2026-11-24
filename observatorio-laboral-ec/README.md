@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English](README.en.md)
+
 # 📊 Observatorio laboral del Ecuador · ENEMDU → dbt → ML → Power BI
 
 [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml)
@@ -21,9 +23,9 @@ expansión, modelos de machine learning explicables, API, app web y monitorizaci
 
 | | |
 |---|---|
-| Datos | 41 meses de microdatos · 1,16 M de personas · 559.089 ocupados en el modelo |
-| Calidad | Tasas oficiales del INEC reproducidas al décimo · 40 tests de dbt · 45 tests de Python |
-| Modelo | AUC **0,910** en meses no vistos · calibrado (52,95 % estimado vs. 52,84 % observado) · igual de bueno por sexo y área |
+| Datos | 41 meses de microdatos · 1,16 M de registros de personas · 559.089 de ocupados en el modelo |
+| Calidad | 20 de 20 tasas oficiales del INEC reproducidas al décimo (5 meses) · 40 tests de dbt · 50 tests de Python |
+| Modelo | AUC **0,910** en meses no vistos · tasa estimada a 0,4 puntos de la observada · AUC de 0,89 a 0,93 por sexo y área |
 | Pronóstico | Error medio **0,24 puntos** en el desempleo, 26 % mejor que la referencia |
 | Operación | Pipeline semanal · CI con puerta de calidad · Docker · monitor de deriva · coste 0 USD |
 
@@ -62,10 +64,10 @@ variables: [diccionario](docs/datos/diccionario.md).
 **[tablero público en vivo en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)**,
 ambos con un usuario de base de datos de solo lectura.
 
-**Machine learning · probabilidad de informalidad:** LightGBM entrenado con 559.089 ocupados y evaluado en 6 meses
+**Machine learning · probabilidad de informalidad:** LightGBM sobre 559.089 ocupados (398.378 para entrenar), evaluado en 6 meses
 que nunca vio: **AUC 0,910** (regresión logística: 0,881) y **bien calibrado**: en mayo de 2026 estima 52,95 % de
-informalidad frente al 52,84 % observado (INEC: 52,8 %). Con SHAP: la rama de actividad y la ocupación pesan más que
-todo lo demás, la educación superior protege y la edad tiene forma de U. Funciona igual de bien para mujeres y para el
+informalidad frente al 52,84 % observado en los microdatos. Con SHAP: la rama de actividad y la ocupación pesan más que
+todo lo demás, la educación superior protege y la edad tiene forma de U. No funciona peor para las mujeres ni para el
 área rural. → [Ficha del modelo](reports/modelo_informalidad/README.md)
 
 **Pronóstico con backtesting:** 12 orígenes móviles sin mirar el futuro. Gana la media de 3 meses (error de **0,24
@@ -74,8 +76,8 @@ junio-agosto de 2026: **3,0 % de desempleo** (intervalo 80 %: 2,6–3,5). → [R
 
 **MLOps:** el modelo se sirve con una **API FastAPI** que explica cada predicción (los 3 factores que más suben o
 bajan la probabilidad), empaquetada en una imagen **Docker** mínima. Un workflow reentrena desde los datos del INEC,
-aplica una **puerta de calidad** (no publica un modelo peor), prueba la API y el contenedor; los experimentos quedan
-en **MLflow**. → [API](api/README.md)
+aplica una **puerta de calidad** (falla si el modelo no alcanza los umbrales mínimos), prueba la API y el contenedor;
+los experimentos quedan en **MLflow**. → [API](api/README.md)
 
 **Producto y monitorización:** **[app pública en Streamlit](https://observatorio-laboral-ec.streamlit.app)** con
 un simulador por perfil y el pronóstico; y un
@@ -152,7 +154,7 @@ reports/            Fichas, métricas y figuras del modelo, del pronóstico y de
 api/  app/          Dockerfile de la API y app pública en Streamlit
 bi/                 Informe de Power BI, PDF y capturas
 docs/               ADR, fuentes, diccionario de datos y guía paso a paso
-tests/              Tests de Python (45)
+tests/              Tests de Python (50)
 ```
 
 ## Fuente de datos y licencia

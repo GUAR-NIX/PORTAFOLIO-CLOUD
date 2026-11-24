@@ -4,7 +4,7 @@
 
 ## Contexto
 Un modelo en un notebook no es un producto. Hay que poder reentrenarlo de forma reproducible, saber qué versión
-está sirviendo, impedir que se publique uno peor y exponerlo a otras aplicaciones (la app de la Fase 9).
+está sirviendo, detectar uno por debajo de los umbrales y exponerlo a otras aplicaciones (la app de la Fase 9).
 
 ## Decisión
 - **Registro de experimentos con MLflow** (backend SQLite en `mlruns/`, no versionado): parámetros, métricas de

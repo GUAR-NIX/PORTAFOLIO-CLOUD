@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English (summary)](README.en.md)
+
 # ☁️ API de clima del Ecuador en Kubernetes · FastAPI, Helm y observabilidad
 
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB) ![Kubernetes](https://img.shields.io/badge/Kubernetes-kind%20v1.34-326CE5) ![Helm](https://img.shields.io/badge/Helm-3.19-0F1689) ![Pruebas](https://img.shields.io/badge/pytest-21%20passed-success)

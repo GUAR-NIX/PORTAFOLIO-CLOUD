@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English](README.en.md)
+
 # Portafolio de Ingeniería de datos y Cloud
 
 Streaming, orquestación, modern data stack, serverless, Kubernetes y lakehouse con Iceberg, ejecutados en local con Docker y con infraestructura como código lista para la nube.

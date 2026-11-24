@@ -22,4 +22,6 @@ referencias ingenuas.
 - Gana la media de 3 meses (MAE 0,24 pp en desempleo; 26 % mejor que repetir el último valor): con 41 meses, suavizar
   el ruido muestral vale más que modelar estacionalidad. Se revisará cuando haya más historia.
 - Los intervalos se estiman con 12 errores por horizonte: son orientativos.
+- El modelo se elige y se mide en el mismo backtest, así que el error del ganador es algo optimista: la comprobación
+  independiente llegará cuando el INEC publique junio-agosto de 2026.
 - SARIMA es inestable en la informalidad (MAE 6,2 pp): por eso no se usa sin compararlo antes.

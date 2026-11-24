@@ -1,3 +1,5 @@
+🇪🇸 **Español** · 🇬🇧 [English (summary)](README.en.md)
+
 # 🧊 Lakehouse local con Apache Iceberg + Trino + Nessie sobre los pageviews de Wikipedia
 
 [![CI](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/lakehouse-iceberg-trino-nessie.yml/badge.svg)](https://github.com/GUAR-NIX/portafolio-cloud/actions/workflows/lakehouse-iceberg-trino-nessie.yml)

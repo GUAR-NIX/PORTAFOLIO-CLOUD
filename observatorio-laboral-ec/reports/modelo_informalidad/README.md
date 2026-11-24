@@ -28,7 +28,7 @@ meses. Validación **temporal**, sin mezclar meses:
 | **LightGBM** | **0,910** | **0,918** | **0,120** | **0,375** |
 
 **Bien calibrado**: la informalidad que estima el modelo para cada mes de prueba sigue a la observada (53,8 % frente
-a 54,2 % en el conjunto; mayo de 2026: 52,95 % estimada, 52,84 % observada, 52,8 % publicada por el INEC).
+a 54,2 % en el conjunto; mayo de 2026: 52,95 % estimada, 52,84 % observada en los microdatos).
 
 ![Informalidad mensual observada y estimada](tasa_mensual_prueba.png)
 ![Calibración](calibracion.png)

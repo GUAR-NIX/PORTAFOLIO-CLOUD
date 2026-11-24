@@ -19,7 +19,7 @@ se repite mes a mes y métricas que ignoran el diseño muestral.
 - **Factor de expansión** como peso de entrenamiento (normalizado a media 1) y en todas las métricas: el desempeño
   se mide sobre la población, no sobre la muestra.
 - **Dos modelos**: regresión logística con *splines* de edad (referencia interpretable) y **LightGBM** con variables
-  categóricas nativas (modelo principal). Se elige por AUC, *log loss* y calibración en validación.
+  categóricas nativas (modelo principal, con parada temprana en validación). Los dos se reportan en la prueba.
 - **Explicabilidad y equidad**: SHAP (TreeExplainer) para la importancia global y el efecto de cada categoría;
   métricas por sexo y por área para comprobar que el modelo no funciona peor para un grupo.
 - **Artefactos**: métricas y figuras en `reports/modelo_informalidad/` (versionadas); el modelo entrenado
