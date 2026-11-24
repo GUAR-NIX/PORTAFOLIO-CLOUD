@@ -196,7 +196,7 @@ nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
 - *Aviso «Node.js 20 is deprecated»*: se actualizaron `actions/checkout` a v5 y `actions/setup-python` a v6, que ya
   funcionan con Node 24.
 
-## Fase 5 · Análisis y BI
+## Fase 5 · Análisis y BI (2026-11-24)
 
 **Capa para BI.** Vista `marts.bi_mercado_laboral`: el hecho con etiquetas legibles (sexo, área, provincia, región,
 nivel de instrucción), con un test que garantiza que ninguna fila queda «Sin dato». Medidas DAX, diseño de las 4
@@ -241,4 +241,46 @@ seis campos calculados (suma ÷ suma), tarjetas, serie mensual y filtros de peri
 - *Serie con picos hasta cero*: la fecha estaba como día; se cambió a «Año-mes».
 
 **Fase 5 cerrada.**
+
+## Fase 6 · ML: probabilidad de informalidad (2026-11-24)
+
+**Pregunta.** Dado el perfil de una persona ocupada, ¿qué probabilidad tiene de trabajar en el sector informal?
+Decisiones en [ADR-0005](adr/ADR-0005-modelo-informalidad.md); resultados en la
+[ficha del modelo](../reports/modelo_informalidad/README.md).
+
+**Dataset** ([`modelo_informalidad.py`](../src/observatorio/modelo_informalidad.py)). Desde los Parquet mensuales de la
+ingesta: ocupados de 15 años o más (`condact` 1-6) con factor de expansión positivo; objetivo `secemp == 2`.
+Variables con etiquetas legibles: edad, sexo, estado civil, nivel de instrucción, área, provincia (nombre desde el
+seed de dbt), rama de actividad (CIIU) y ocupación. 559.089 filas en 41 meses. **El ingreso no entra**: es
+consecuencia de la informalidad y sería una fuga de información.
+
+**Validación temporal.** Entrenamiento ene-2023 → may-2025; validación jun → nov 2025 (parada temprana); prueba
+dic-2025 → may-2026, evaluada una sola vez. Una partición aleatoria mezclaría meses y hogares que la encuesta visita
+varias veces, y daría métricas optimistas.
+
+**Modelos** ([`entrenar_informalidad.py`](../scripts/entrenar_informalidad.py), ~10 s):
+
+| Modelo (prueba, ponderado) | AUC-ROC | Brier | Log loss |
+|---|---|---|---|
+| Tasa media (sin modelo) | 0,500 | 0,248 | 0,690 |
+| Regresión logística + splines de edad | 0,881 | 0,139 | 0,429 |
+| **LightGBM** (602 árboles) | **0,910** | **0,120** | **0,375** |
+
+**Calibración.** La informalidad estimada por mes sigue a la observada (mayo 2026: 52,95 % frente a 52,84 %; INEC
+52,8 %), y la curva de calibración está pegada a la diagonal.
+
+**Explicación (SHAP).** Rama de actividad > ocupación > provincia > instrucción > edad > sexo > área > estado
+civil. La educación superior y las ocupaciones directivas o administrativas empujan hacia la formalidad; no tener
+instrucción, las ocupaciones elementales y la agricultura, hacia la informalidad. La edad tiene forma de U.
+
+**Equidad.** AUC 0,897 en hombres y 0,927 en mujeres; 0,888 urbano y 0,910 rural; en todos los grupos la tasa
+estimada queda a menos de 1 punto de la observada.
+
+**Incidencias y aprendizajes**
+- *«Hogares como empleadores» con efecto muy negativo*: no es que el trabajo doméstico sea formal; la ENEMDU lo
+  clasifica aparte (`secemp = 3`) y por definición no cuenta como sector informal. Queda anotado en la ficha.
+- *Aviso de LightGBM 4.7* (`eval_set` obsoleto): se pasó a `eval_X` / `eval_y`.
+- *CI*: los tests de métricas necesitan scikit-learn, así que se añadió a `requirements-dev.txt`; LightGBM y SHAP
+  viven en `requirements-ml.txt` para que el pipeline semanal no los instale.
+- El modelo (`models/*.joblib`, 3,8 MB) no se versiona: se regenera con el script. Sí se versionan métricas y figuras.
 

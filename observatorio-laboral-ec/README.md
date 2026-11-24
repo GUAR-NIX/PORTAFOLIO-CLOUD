@@ -37,6 +37,16 @@ ejecución en la nube: **en verde en 1 min 43 s**.
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
+**BI:** informe de Power BI de 4 páginas ([capturas y PDF](bi/README.md)) y
+**[tablero público en vivo en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)**,
+ambos con un usuario de base de datos de solo lectura.
+
+**Machine learning · probabilidad de informalidad:** LightGBM entrenado con 559.089 ocupados y evaluado en 6 meses
+que nunca vio: **AUC 0,910** (regresión logística: 0,881) y **bien calibrado**: en mayo de 2026 estima 52,95 % de
+informalidad frente al 52,84 % observado (INEC: 52,8 %). Con SHAP: la rama de actividad y la ocupación pesan más que
+todo lo demás, la educación superior protege y la edad tiene forma de U. Funciona igual de bien para mujeres y para el
+área rural. → [Ficha del modelo](reports/modelo_informalidad/README.md)
+
 ## Arquitectura
 
 ```mermaid
@@ -62,7 +72,7 @@ flowchart LR
 | 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
 | 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
-| 6 · ML: informalidad | Clasificación explicable (SHAP) con análisis de equidad | ⏳ |
+| 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
 | 7 · ML: pronóstico | Tasa de desempleo con *backtesting* | ⏳ |
 | 8 · MLOps | MLflow, API en Docker, CI de modelos | ⏳ |
 | 9 · Producto | App pública con simulador por perfil | ⏳ |
@@ -77,6 +87,7 @@ flowchart LR
 | [0002](docs/adr/ADR-0002-nube-gratuita.md) | Nube gratuita real: Neon (PostgreSQL), GitHub Actions, Hugging Face / Streamlit, MLflow |
 | [0003](docs/adr/ADR-0003-dbt-modelo-estrella.md) | dbt en tres capas y modelo estrella; BI y ML solo leen `marts` |
 | [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (mercado ecuatoriano) + Looker Studio (enlace público) |
+| [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
 
 ## Cómo reproducirlo
 
@@ -86,13 +97,16 @@ python -m venv .venv && source .venv/bin/activate      # en Windows: .venv\Scrip
 pip install -r requirements-dev.txt
 cp .env.example .env                                   # y ajusta la conexión a PostgreSQL
 pytest
+python -m observatorio.ingesta --desde 2023-01 --hasta actual   # microdatos (PYTHONPATH=src)
+pip install -r requirements-ml.txt && python scripts/entrenar_informalidad.py   # modelo, ~10 s
 ```
 
 ## Estructura
 
 ```
 src/observatorio/   Código Python (configuración, indicadores oficiales, ingesta…)
-scripts/            Utilidades (validación contra las cifras oficiales del INEC)
+scripts/            Utilidades (validación contra el INEC, entrenamiento del modelo)
+reports/            Ficha, métricas y figuras de los modelos
 dbt/                Transformaciones SQL y tests de datos
 ml/  api/  app/     Modelos, API y aplicación web
 monitoring/  bi/    Monitorización y tableros

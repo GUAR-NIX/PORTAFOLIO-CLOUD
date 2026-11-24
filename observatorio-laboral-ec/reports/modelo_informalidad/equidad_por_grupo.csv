@@ -1,0 +1,5 @@
+variable,grupo,n,auc_roc,brier,tasa_observada_pct,tasa_estimada_pct
+sexo,Hombre,44710,0.8969,0.1279,54.912,54.1553
+sexo,Mujer,35129,0.927,0.1087,53.228,53.2516
+area,Rural,23148,0.9101,0.0928,75.8926,75.4044
+area,Urbana,56691,0.8884,0.1346,42.6677,42.2582

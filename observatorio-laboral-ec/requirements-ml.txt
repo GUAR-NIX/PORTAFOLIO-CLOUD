@@ -1,0 +1,7 @@
+# Fase 6 · modelo de informalidad (separado para que el pipeline semanal no instale librerías de ML)
+-r requirements.txt
+scikit-learn>=1.5
+lightgbm>=4.7
+shap>=0.46
+matplotlib>=3.8
+joblib>=1.4

@@ -1,0 +1,115 @@
+{
+  "datos": {
+    "meses": 41,
+    "filas": 559089,
+    "particion": {
+      "entrenamiento": {
+        "filas": 398378,
+        "desde": "202301",
+        "hasta": "202505"
+      },
+      "validacion": {
+        "filas": 80872,
+        "desde": "202506",
+        "hasta": "202511"
+      },
+      "prueba": {
+        "filas": 79839,
+        "desde": "202512",
+        "hasta": "202605"
+      }
+    }
+  },
+  "variables": [
+    "edad",
+    "sexo",
+    "estado_civil",
+    "nivel_instruccion",
+    "area",
+    "provincia",
+    "rama",
+    "ocupacion"
+  ],
+  "lgbm_iteraciones": 602,
+  "prueba": {
+    "referencia_tasa_media": {
+      "auc_roc": 0.5,
+      "auc_pr": 0.542217249806762,
+      "brier": 0.2482216295499609,
+      "log_loss": 0.6895862520898671,
+      "tasa_observada_pct": 54.221724980676335,
+      "tasa_estimada_pct": 54.41985956139321
+    },
+    "regresion_logistica": {
+      "auc_roc": 0.8808417248113665,
+      "auc_pr": 0.8892833536157062,
+      "brier": 0.1386957479302856,
+      "log_loss": 0.42863835432652886,
+      "tasa_observada_pct": 54.221724980676335,
+      "tasa_estimada_pct": 53.96938197972321
+    },
+    "lightgbm": {
+      "auc_roc": 0.910127817789514,
+      "auc_pr": 0.9176979501641175,
+      "brier": 0.12002552887371451,
+      "log_loss": 0.3745114389275554,
+      "tasa_observada_pct": 54.221724980676335,
+      "tasa_estimada_pct": 53.784884833496264
+    }
+  },
+  "explicacion": {
+    "importancia_media_abs_shap": {
+      "rama": 1.201,
+      "ocupacion": 0.8498,
+      "provincia": 0.3293,
+      "nivel_instruccion": 0.2966,
+      "edad": 0.2292,
+      "sexo": 0.1704,
+      "area": 0.1614,
+      "estado_civil": 0.1329
+    },
+    "efecto_medio_por_categoria": {
+      "nivel_instruccion": {
+        "Superior": -0.375,
+        "Educación media/bachillerato": -0.107,
+        "Educación básica": 0.395,
+        "Ninguno": 0.881
+      },
+      "ocupacion": {
+        "Directores y gerentes": -3.258,
+        "Personal de apoyo administrativo": -2.524,
+        "Técnicos y profesionales de nivel medio": -1.116,
+        "Profesionales científicos e intelectuales": -0.911,
+        "Operadores de instalaciones y máquinas": -0.742,
+        "Trabajadores de servicios y vendedores": -0.274,
+        "Oficiales, operarios y artesanos": 0.59,
+        "Agricultores y trabajadores agropecuarios calificados": 0.664,
+        "Ocupaciones elementales": 1.023
+      },
+      "rama": {
+        "Hogares como empleadores": -6.623,
+        "Administración pública y defensa": -4.889,
+        "Actividades financieras": -1.623,
+        "Minas y canteras": -1.296,
+        "Enseñanza": -1.228,
+        "Información y comunicación": -1.098,
+        "Salud y asistencia social": -0.787,
+        "Manufactura": -0.665,
+        "Servicios administrativos y de apoyo": 0.012,
+        "Actividades profesionales": 0.016,
+        "Alojamiento y comidas": 0.105,
+        "Comercio": 0.2,
+        "Artes y entretenimiento": 0.453,
+        "Transporte y almacenamiento": 1.093,
+        "Otros servicios": 1.246,
+        "Construcción": 1.355,
+        "Agricultura, ganadería y pesca": 1.511
+      },
+      "area": {
+        "Urbana": -0.121,
+        "Rural": 0.257
+      }
+    }
+  },
+  "segundos": 8.2
+}

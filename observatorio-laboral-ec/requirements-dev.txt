@@ -1,3 +1,4 @@
 -r requirements.txt
 pytest>=8
+scikit-learn>=1.5    # métricas del modelo de informalidad (los tests no necesitan lightgbm ni shap)
 ruff>=0.6
