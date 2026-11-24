@@ -195,3 +195,23 @@ nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
   «Network is unreachable» del log son ruido: los servidores de GitHub no tienen IPv6 y psycopg prueba después IPv4.
 - *Aviso «Node.js 20 is deprecated»*: se actualizaron `actions/checkout` a v5 y `actions/setup-python` a v6, que ya
   funcionan con Node 24.
+
+## Fase 5 · Análisis y BI (en curso)
+
+**Capa para BI.** Vista `marts.bi_mercado_laboral`: el hecho con etiquetas legibles (sexo, área, provincia, región,
+nivel de instrucción), con un test que garantiza que ninguna fila queda «Sin dato». Medidas DAX, diseño de las 4
+páginas y campos de Looker Studio en [bi/README.md](../bi/README.md).
+
+**Representatividad.** La ENEMDU mensual es representativa a nivel nacional, no por provincia (Morona Santiago: 297
+encuestados en mayo de 2026). Las cifras provinciales del tablero acumulan 12 meses.
+
+**Usuario de solo lectura (`bi_lector`).** Power BI y Looker no usan la cuenta dueña. Permisos en
+[`permisos_bi.sql`](../scripts/permisos_bi.sql), aplicados y verificados con
+[`aplicar_permisos_bi.py`](../scripts/aplicar_permisos_bi.py): 8 de 8 comprobaciones (lee `marts`; no inserta, no
+borra, no ve `raw`, no crea objetos, sin atributos de administración ni grupos).
+
+**Incidencia: un usuario «de solo lectura» que podía escribir.** El primer `bi_lector` se creó desde la consola de
+Neon. La verificación mostró que podía insertar y ver `raw`: Neon hace miembros de `neon_superuser` a los roles
+creados en la consola, y la cuenta dueña no puede quitárselo (`permission denied to revoke role`). Se retiraron los
+permisos, se borró el rol y se creó con `CREATE ROLE … LOGIN PASSWORD` desde el SQL Editor, que nace sin privilegios.
+La contraseña se generó con `secrets` de Python (28 caracteres) y se guardó fuera del repositorio.
