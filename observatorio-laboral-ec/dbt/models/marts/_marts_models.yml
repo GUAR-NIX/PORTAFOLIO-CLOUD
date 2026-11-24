@@ -25,6 +25,15 @@ models:
       - name: pea
         description: Población económicamente activa expandida.
 
+  - name: bi_mercado_laboral
+    description: >
+      Vista para Power BI y Looker Studio: el hecho con etiquetas legibles (sexo, área, provincia, región, nivel de
+      instrucción). Contiene poblaciones; las tasas se calculan en la herramienta con medidas (suma / suma).
+    data_tests:
+      - expression_is_true:
+          arguments:
+            expression: "sexo <> 'Sin dato' and area <> 'Sin dato' and provincia <> 'Sin dato'"
+
   - name: indicadores_nacionales
     description: Tasas nacionales mensuales del mercado laboral (en %), comparadas con el INEC en un test.
     columns:
