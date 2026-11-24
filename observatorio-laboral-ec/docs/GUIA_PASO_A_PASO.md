@@ -396,3 +396,17 @@ provincia) y AUC entre 0,90 y 0,92.
 - 45 tests en total (7 nuevos del monitor, incluido uno que simula un cambio de composición urbano/rural y
   comprueba que se detecta como deriva).
 
+
+## Fase 11 · Publicación (2026-11-24)
+
+- **README del proyecto**: insignias de los tres workflows (CI, pipeline semanal, modelo y API), tabla «En vivo» con
+  la app, el tablero, Power BI y la guía, y un resumen en cifras.
+- **Arquitectura corregida** para reflejar lo construido: el modelo y el pronóstico leen los Parquet de la ingesta, el
+  monitor de deriva es propio (PSI ponderado) y no se usaron datos del Banco Central (se documentó por qué en
+  ADR-0001). Se quitaron las carpetas vacías `ml/`, `monitoring/` y `notebooks/` de la estructura inicial.
+- **README del portafolio**: el observatorio pasa a proyecto destacado, primero en la tabla, con sus enlaces en vivo.
+- **Perfil de GitHub (GUAR-NIX)**: el observatorio aparece como proyecto principal con los enlaces a la app y al
+  tablero.
+
+**Resultado final:** 11 fases, 8 ADR, 45 tests de Python, 40 tests de dbt, tres workflows en verde, una app y un
+tablero públicos, a coste cero.

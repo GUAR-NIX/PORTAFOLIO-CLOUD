@@ -12,7 +12,7 @@ cero y sin riesgo de cargos inesperados.
 | Base de datos (producción) | **Neon** (PostgreSQL gestionado, capa gratuita) | PostgreSQL estándar, compatible con dbt; sin tarjeta |
 | Base de datos (desarrollo) | PostgreSQL 16 en **Docker** (`docker-compose.yml`) | Igual que producción y sin depender de Internet |
 | Orquestación | **GitHub Actions** programado | Gratis en repositorios públicos; el historial de ejecuciones es evidencia |
-| API del modelo y app | **Hugging Face Spaces** / **Streamlit Community Cloud** | Enlace público gratuito |
+| API del modelo y app | **Streamlit Community Cloud** (app publicada); la API se entrega como imagen Docker probada en CI | Enlace público gratuito |
 | Experimentos | **MLflow** | Estándar del sector; registro de modelos |
 
 Alternativas descartadas: AWS con capa gratuita (riesgo de cargos y más superficie de configuración) y ejecutarlo en un

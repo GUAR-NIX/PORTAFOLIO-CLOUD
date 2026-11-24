@@ -1,12 +1,33 @@
 # 📊 Observatorio laboral del Ecuador · ENEMDU → dbt → ML → Power BI
 
+[![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml)
+[![Pipeline semanal](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml)
+[![Modelo y API](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml)
+
 De los **microdatos de la encuesta de empleo del INEC (ENEMDU)** a un **modelo en producción** y un **dashboard público**:
 ingesta automatizada, data warehouse con dbt sobre PostgreSQL, indicadores oficiales reproducidos con factores de
 expansión, modelos de machine learning explicables, API, app web y monitorización. Coste cero y todo medido.
 
-> 🚧 **En construcción.** El estado de cada fase está abajo y el detalle, en la [guía paso a paso](docs/GUIA_PASO_A_PASO.md).
+## 🔗 En vivo
 
-## Resultados hasta ahora
+| | Enlace | Qué hay |
+|---|---|---|
+| 🧮 **App** | **[observatorio-laboral-ec.streamlit.app](https://observatorio-laboral-ec.streamlit.app)** | Simulador de informalidad por perfil, con explicación de cada predicción, y pronóstico a 3 meses |
+| 📈 **Tablero** | **[Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)** | Indicadores mensuales con filtros de periodo, sexo y área, leídos en vivo de PostgreSQL |
+| 📄 **Power BI** | [Capturas y PDF](bi/README.md) | Informe de 4 páginas: resumen, brechas, territorio y calidad de los datos |
+| 📘 **Guía** | [Paso a paso](docs/GUIA_PASO_A_PASO.md) | Cada fase con sus decisiones, errores y cómo se resolvieron |
+
+## En cifras
+
+| | |
+|---|---|
+| Datos | 41 meses de microdatos · 1,16 M de personas · 559.089 ocupados en el modelo |
+| Calidad | Tasas oficiales del INEC reproducidas al décimo · 40 tests de dbt · 45 tests de Python |
+| Modelo | AUC **0,910** en meses no vistos · calibrado (52,95 % estimado vs. 52,84 % observado) · igual de bueno por sexo y área |
+| Pronóstico | Error medio **0,24 puntos** en el desempleo, 26 % mejor que la referencia |
+| Operación | Pipeline semanal · CI con puerta de calidad · Docker · monitor de deriva · coste 0 USD |
+
+## Resultados
 
 **Las tasas oficiales del INEC se reproducen desde los microdatos** (mayo de 2026, 27.369 personas encuestadas que
 representan a 19,09 millones de habitantes), aplicando la sintaxis oficial y el factor de expansión:
@@ -65,15 +86,17 @@ entrenamiento y AUC entre 0,90 y 0,92. → [Monitor](reports/monitoreo/README.md
 
 ```mermaid
 flowchart LR
-  INEC["INEC · ENEMDU<br/>microdatos"] --> ING["Ingesta Python<br/>(GitHub Actions)"]
-  BCE["Banco Central<br/>macro"] --> ING
+  INEC["INEC · ENEMDU<br/>microdatos"] --> ING["Ingesta Python<br/>Parquet"]
   ING --> PG[("PostgreSQL<br/>Neon")]
-  PG --> DBT["dbt<br/>staging → marts"]
-  DBT --> BI["Power BI<br/>Looker Studio"]
-  DBT --> ML1["ML · probabilidad<br/>de informalidad"]
-  DBT --> ML2["ML · pronóstico<br/>del desempleo"]
-  ML1 & ML2 --> MLF["MLflow"] --> API["API FastAPI<br/>(Docker)"] --> APP["App Streamlit<br/>pública"]
-  DBT -.-> MON["Calidad y deriva<br/>(Evidently)"]
+  PG --> DBT["dbt<br/>staging → marts<br/>40 tests"]
+  DBT --> BI["Power BI<br/>Data Studio"]
+  ING --> ML1["LightGBM + SHAP<br/>informalidad"]
+  ING --> ML2["Pronóstico<br/>backtesting"]
+  ML1 --> MLF["MLflow"]
+  ML1 --> API["API FastAPI<br/>Docker"]
+  ML1 & ML2 --> APP["App Streamlit<br/>pública"]
+  ML1 -.-> MON["Monitor de deriva<br/>PSI ponderado"]
+  GHA["GitHub Actions<br/>semanal + CI"] -.-> ING & DBT & MON
 ```
 
 ## Fases
@@ -91,14 +114,14 @@ flowchart LR
 | 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
 | 9 · Producto | **[App pública](https://observatorio-laboral-ec.streamlit.app)** con simulador por perfil y pronóstico ([detalle](app/README.md)) | ✅ |
 | 10 · Monitorización | [PSI ponderado y desempeño mensual](reports/monitoreo/README.md) en el pipeline semanal | ✅ |
-| 11 · Publicación | Resultados, guía y vídeo | ⏳ |
+| 11 · Publicación | README con enlaces en vivo, guía completa y proyecto destacado en el perfil | ✅ |
 
 ## Decisiones técnicas
 
 | ADR | Decisión |
 |---|---|
 | [0001](docs/adr/ADR-0001-alcance-y-fuentes.md) | Microdatos de la ENEMDU con factores de expansión; validar contra las tasas oficiales del INEC (< 0,1 puntos) |
-| [0002](docs/adr/ADR-0002-nube-gratuita.md) | Nube gratuita real: Neon (PostgreSQL), GitHub Actions, Hugging Face / Streamlit, MLflow |
+| [0002](docs/adr/ADR-0002-nube-gratuita.md) | Nube gratuita real: Neon (PostgreSQL), GitHub Actions, Streamlit Community Cloud, MLflow |
 | [0003](docs/adr/ADR-0003-dbt-modelo-estrella.md) | dbt en tres capas y modelo estrella; BI y ML solo leen `marts` |
 | [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (mercado ecuatoriano) + Looker Studio (enlace público) |
 | [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
@@ -122,19 +145,18 @@ python scripts/pronosticar_indicadores.py                                       
 ## Estructura
 
 ```
-src/observatorio/   Código Python (configuración, indicadores oficiales, ingesta…)
-scripts/            Utilidades (validación contra el INEC, entrenamiento del modelo)
-reports/            Ficha, métricas y figuras de los modelos
-dbt/                Transformaciones SQL y tests de datos
-ml/  api/  app/     Modelos, API y aplicación web
-monitoring/  bi/    Monitorización y tableros
-notebooks/          Exploración
-docs/               ADR, diccionario de datos y guía paso a paso
-tests/              Tests de Python
+src/observatorio/   Código Python: indicadores oficiales, ingesta, carga, modelo, pronóstico, monitor, API
+scripts/            Validación contra el INEC, entrenamiento, pronóstico, monitor de deriva, permisos de BI
+dbt/                Transformaciones SQL (staging → intermediate → marts) y tests de datos
+reports/            Fichas, métricas y figuras del modelo, del pronóstico y del monitor
+api/  app/          Dockerfile de la API y app pública en Streamlit
+bi/                 Informe de Power BI, PDF y capturas
+docs/               ADR, fuentes, diccionario de datos y guía paso a paso
+tests/              Tests de Python (45)
 ```
 
 ## Fuente de datos y licencia
 
-Código bajo [MIT](LICENSE). Datos: **INEC**, Encuesta Nacional de Empleo, Desempleo y Subempleo (ENEMDU), y **Banco
-Central del Ecuador**. Conservan los términos de uso de sus publicadores y no se redistribuyen en este repositorio: el
-proyecto los descarga desde la fuente oficial.
+Código bajo [MIT](LICENSE). Datos: **INEC**, Encuesta Nacional de Empleo, Desempleo y Subempleo (ENEMDU). Conservan
+los términos de uso de su publicador y no se redistribuyen en este repositorio: el proyecto los descarga desde la
+fuente oficial. El modelo publicado en `app/modelo/` no contiene microdatos, solo los árboles entrenados.

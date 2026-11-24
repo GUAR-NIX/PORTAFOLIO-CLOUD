@@ -25,4 +25,6 @@ Los datos son públicos y pertenecen al INEC. No se redistribuyen en este reposi
 fuente oficial.
 
 ## Banco Central del Ecuador
-Indicadores macroeconómicos para el pronóstico (inflación, PIB): se documentarán en la Fase 2.
+Se planteó usar indicadores macroeconómicos (inflación, PIB) en el pronóstico, pero **no se incorporaron**: con 41
+meses de serie, el backtesting favorece un modelo simple (ver la actualización de
+[ADR-0001](../adr/ADR-0001-alcance-y-fuentes.md)).
