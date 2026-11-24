@@ -30,6 +30,10 @@ dentro de la base: 0 duplicados y las tasas calculadas en SQL iguales a las del 
 **Modelo estrella con dbt:** staging → intermediate → marts, con un hecho agregado de 73.630 filas (13 MB) y
 **40/40 tests en verde**, entre ellos uno que compara las tasas del mart con las oficiales del INEC. Ese test detectó
 un error real de doble redondeo antes de que llegara a ningún dashboard.
+
+**Pipeline automático:** cada lunes, GitHub Actions descarga los meses que el INEC haya publicado, los carga en Neon,
+ejecuta `dbt build` con los 40 tests, comprueba la frescura y publica un resumen con las últimas tasas. Primera
+ejecución en la nube: **en verde en 1 min 43 s**.
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
@@ -56,8 +60,8 @@ flowchart LR
 | 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
 | 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
 | 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
-| 4 · Calidad y orquestación | Pipeline programado en GitHub Actions, frescura, alertas | 🔄 Siguiente |
-| 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | ⏳ |
+| 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
+| 5 · Análisis y BI | KPIs del mercado laboral en Power BI y Looker Studio | 🔄 Siguiente |
 | 6 · ML: informalidad | Clasificación explicable (SHAP) con análisis de equidad | ⏳ |
 | 7 · ML: pronóstico | Tasa de desempleo con *backtesting* | ⏳ |
 | 8 · MLOps | MLflow, API en Docker, CI de modelos | ⏳ |

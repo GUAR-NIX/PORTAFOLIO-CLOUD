@@ -175,3 +175,23 @@ falla con un mensaje claro si falta alguno.
 
 **Prueba local de la misma secuencia contra Neon:** ingesta 41 meses + 6 no publicados, 0 errores; carga 0 periodos
 nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
+
+**Primera ejecución en GitHub Actions (run #3, manual): en verde** en 1 min 43 s.
+
+| Paso | Resultado | Tiempo |
+|---|---|---|
+| Comprobar secrets | OK | 0 s |
+| Ingesta de los meses publicados | OK | 35 s |
+| Carga en Neon (solo meses nuevos) | OK | 4 s |
+| `dbt build` (40 tests) | OK | 25 s |
+| Frescura de los datos | OK | 6 s |
+| Resumen del run | OK | 2 s |
+
+**Incidencias**
+- *Run #1, «Falta el secret NEON_PGHOST»*: los secrets no se habían guardado. El paso de comprobación paró el
+  pipeline con un mensaje claro en vez de un error de conexión confuso, que es justo para lo que se añadió.
+- *Run #2, «password authentication failed»*: GitHub llegaba a Neon (servidor y usuario correctos), pero el valor
+  del secret de la contraseña no coincidía con el que funciona en local. Se actualizó el secret. Las líneas
+  «Network is unreachable» del log son ruido: los servidores de GitHub no tienen IPv6 y psycopg prueba después IPv4.
+- *Aviso «Node.js 20 is deprecated»*: se actualizaron `actions/checkout` a v5 y `actions/setup-python` a v6, que ya
+  funcionan con Node 24.
