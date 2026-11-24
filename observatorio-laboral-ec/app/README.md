@@ -1,5 +1,8 @@
 # App pública · Observatorio laboral del Ecuador
 
+**👉 [observatorio-laboral-ec.streamlit.app](https://observatorio-laboral-ec.streamlit.app)** (Streamlit Community
+Cloud, se redespliega sola con cada push a `main`).
+
 App en Streamlit con tres pestañas:
 
 1. **Simulador de informalidad**: describes a una persona ocupada (edad, sexo, estado civil, instrucción, área,

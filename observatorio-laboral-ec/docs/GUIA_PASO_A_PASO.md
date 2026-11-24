@@ -367,7 +367,12 @@ SHAP), pronóstico a 3 meses con intervalo y tabla del backtesting, y ficha del 
 - *Puntos sobre el área del intervalo*: Plotly añade marcadores por defecto en series cortas; se fijó
   `mode="lines"` en la banda.
 
-**Pendiente:** publicar en Streamlit Community Cloud (requiere iniciar sesión con la cuenta de GitHub del autor).
+**Publicada** en Streamlit Community Cloud: <https://observatorio-laboral-ec.streamlit.app> (repositorio
+`GUAR-NIX/PORTAFOLIO-CLOUD`, rama `main`, archivo `observatorio-laboral-ec/app/app.py`, Python 3.12, sin secretos:
+la app no se conecta a la base de datos). Primer arranque: unos 2 minutos instalando dependencias.
+
+**Primera ejecución del workflow del modelo en la nube: en verde** (ingesta de 41 meses, entrenamiento, puerta de
+calidad, tests de la API, `docker build` y prueba de humo del contenedor).
 
 ## Fase 10 · Monitorización de deriva (2026-11-24)
 

@@ -56,7 +56,8 @@ bajan la probabilidad), empaquetada en una imagen **Docker** mínima. Un workflo
 aplica una **puerta de calidad** (no publica un modelo peor), prueba la API y el contenedor; los experimentos quedan
 en **MLflow**. → [API](api/README.md)
 
-**Producto y monitorización:** [app Streamlit](app/README.md) con un simulador por perfil y el pronóstico; y un
+**Producto y monitorización:** **[app pública en Streamlit](https://observatorio-laboral-ec.streamlit.app)** con
+un simulador por perfil y el pronóstico; y un
 monitor semanal de deriva (PSI ponderado) y desempeño: **sin deriva** en los 12 meses posteriores al
 entrenamiento y AUC entre 0,90 y 0,92. → [Monitor](reports/monitoreo/README.md)
 
@@ -88,7 +89,7 @@ flowchart LR
 | 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
 | 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
 | 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
-| 9 · Producto | [App Streamlit](app/README.md) con simulador por perfil y pronóstico (publicación en la nube pendiente) | 🔄 |
+| 9 · Producto | **[App pública](https://observatorio-laboral-ec.streamlit.app)** con simulador por perfil y pronóstico ([detalle](app/README.md)) | ✅ |
 | 10 · Monitorización | [PSI ponderado y desempeño mensual](reports/monitoreo/README.md) en el pipeline semanal | ✅ |
 | 11 · Publicación | Resultados, guía y vídeo | ⏳ |
 
