@@ -56,6 +56,10 @@ bajan la probabilidad), empaquetada en una imagen **Docker** mínima. Un workflo
 aplica una **puerta de calidad** (no publica un modelo peor), prueba la API y el contenedor; los experimentos quedan
 en **MLflow**. → [API](api/README.md)
 
+**Producto y monitorización:** [app Streamlit](app/README.md) con un simulador por perfil y el pronóstico; y un
+monitor semanal de deriva (PSI ponderado) y desempeño: **sin deriva** en los 12 meses posteriores al
+entrenamiento y AUC entre 0,90 y 0,92. → [Monitor](reports/monitoreo/README.md)
+
 ## Arquitectura
 
 ```mermaid
@@ -85,7 +89,7 @@ flowchart LR
 | 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
 | 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
 | 9 · Producto | [App Streamlit](app/README.md) con simulador por perfil y pronóstico (publicación en la nube pendiente) | 🔄 |
-| 10 · Monitorización | Deriva de datos y del modelo | ⏳ |
+| 10 · Monitorización | [PSI ponderado y desempeño mensual](reports/monitoreo/README.md) en el pipeline semanal | ✅ |
 | 11 · Publicación | Resultados, guía y vídeo | ⏳ |
 
 ## Decisiones técnicas
@@ -99,6 +103,7 @@ flowchart LR
 | [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
 | [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Pronóstico: backtesting de origen móvil contra referencias ingenuas; intervalos empíricos |
 | [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, API FastAPI en Docker mínimo y CI que reentrena con puerta de calidad |
+| [0008](docs/adr/ADR-0008-monitoreo-deriva.md) | Monitor de deriva: PSI ponderado por el diseño muestral y calibración con media móvil de 3 meses |
 
 ## Cómo reproducirlo
 

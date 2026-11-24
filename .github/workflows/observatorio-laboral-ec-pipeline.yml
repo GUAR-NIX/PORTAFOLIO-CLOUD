@@ -63,3 +63,12 @@ jobs:
       - name: Resumen del run
         if: success()
         run: python scripts/resumen_pipeline.py >> "$GITHUB_STEP_SUMMARY"
+
+      # Fase 10: deriva de datos y desempeño del modelo con los meses recién descargados. Usa la copia publicada
+      # del modelo (app/modelo/). Si falla, avisa pero no rompe el pipeline de datos.
+      - name: Monitor de deriva del modelo
+        if: success()
+        continue-on-error: true
+        run: |
+          pip install "scikit-learn>=1.5" "lightgbm>=4.7" "joblib>=1.4" "matplotlib>=3.8"
+          python scripts/monitorear_deriva.py --resumen-markdown >> "$GITHUB_STEP_SUMMARY"

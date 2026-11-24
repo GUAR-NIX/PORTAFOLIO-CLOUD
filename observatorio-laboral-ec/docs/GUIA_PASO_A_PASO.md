@@ -369,3 +369,25 @@ SHAP), pronóstico a 3 meses con intervalo y tabla del backtesting, y ficha del 
 
 **Pendiente:** publicar en Streamlit Community Cloud (requiere iniciar sesión con la cuenta de GitHub del autor).
 
+## Fase 10 · Monitorización de deriva (2026-11-24)
+
+Decisiones en [ADR-0008](adr/ADR-0008-monitoreo-deriva.md); resultados en
+[reports/monitoreo](../reports/monitoreo/README.md).
+
+**Qué hace** ([`monitoreo.py`](../src/observatorio/monitoreo.py), [`monitorear_deriva.py`](../scripts/monitorear_deriva.py)):
+para cada mes calcula el PSI de cada variable frente al entrenamiento (ponderado por el factor de expansión), el
+AUC del modelo y el sesgo de calibración; marca «estable / vigilar / deriva» y «ok / reentrenar». Con
+`--resumen-markdown` escribe una tabla para el resumen de GitHub Actions; el pipeline semanal lo ejecuta tras dbt.
+
+**Resultado:** sin deriva en los 12 meses posteriores al entrenamiento (PSI máximo 0,04–0,10, siempre en la
+provincia) y AUC entre 0,90 y 0,92.
+
+**Incidencias y aprendizajes**
+- *Falsa alarma en abril de 2026*: con la calibración de un solo mes, la diferencia de 1,9 puntos pedía
+  reentrenar; marzo y mayo coincidían. Se cambió la regla a la media móvil de 3 meses y se añadió un test que
+  comprueba que un mes ruidoso no la dispara.
+- *La provincia siempre lidera el PSI*: no es deriva, es la falta de representatividad mensual por provincia
+  (la misma razón por la que el tablero acumula 12 meses).
+- 45 tests en total (7 nuevos del monitor, incluido uno que simula un cambio de composición urbano/rural y
+  comprueba que se detecta como deriva).
+

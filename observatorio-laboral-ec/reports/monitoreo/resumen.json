@@ -1,0 +1,12 @@
+{
+  "version_modelo": "lgbm-202605",
+  "ultimo_mes": "202605",
+  "estado_datos_ultimo_mes": "estable",
+  "psi_maximo_ultimo_mes": 0.0692,
+  "variable_mas_derivada": "provincia",
+  "auc_ultimo_mes": 0.9148,
+  "alerta_modelo_ultimo_mes": "ok",
+  "meses_fuera_de_entrenamiento": 12,
+  "meses_con_deriva": 0,
+  "meses_con_alerta_modelo": 0
+}
