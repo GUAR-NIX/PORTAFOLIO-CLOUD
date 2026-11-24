@@ -51,6 +51,11 @@ todo lo demás, la educación superior protege y la edad tiene forma de U. Funci
 puntos** en el desempleo, 26 % mejor que repetir el último valor); SARIMA, más complejo, queda peor. Pronóstico para
 junio-agosto de 2026: **3,0 % de desempleo** (intervalo 80 %: 2,6–3,5). → [Resultados](reports/pronostico/README.md)
 
+**MLOps:** el modelo se sirve con una **API FastAPI** que explica cada predicción (los 3 factores que más suben o
+bajan la probabilidad), empaquetada en una imagen **Docker** mínima. Un workflow reentrena desde los datos del INEC,
+aplica una **puerta de calidad** (no publica un modelo peor), prueba la API y el contenedor; los experimentos quedan
+en **MLflow**. → [API](api/README.md)
+
 ## Arquitectura
 
 ```mermaid
@@ -78,7 +83,7 @@ flowchart LR
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
 | 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
 | 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
-| 8 · MLOps | MLflow, API en Docker, CI de modelos | ⏳ |
+| 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
 | 9 · Producto | App pública con simulador por perfil | ⏳ |
 | 10 · Monitorización | Deriva de datos y del modelo | ⏳ |
 | 11 · Publicación | Resultados, guía y vídeo | ⏳ |
@@ -93,6 +98,7 @@ flowchart LR
 | [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (mercado ecuatoriano) + Looker Studio (enlace público) |
 | [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
 | [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Pronóstico: backtesting de origen móvil contra referencias ingenuas; intervalos empíricos |
+| [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, API FastAPI en Docker mínimo y CI que reentrena con puerta de calidad |
 
 ## Cómo reproducirlo
 

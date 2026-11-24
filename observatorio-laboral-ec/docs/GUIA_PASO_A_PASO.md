@@ -317,3 +317,34 @@ junio-agosto de 2026: desempleo 3,03 % (intervalo 80 %: 2,58–3,47) e informali
 - Holt-Winters con tendencia y estacionalidad se descartó de entrada: con 41 meses, estimar 12 efectos mensuales
   más la tendencia sobreajusta.
 
+## Fase 8 · MLOps: MLflow, API y Docker (2026-11-24)
+
+Decisiones en [ADR-0007](adr/ADR-0007-mlops-api-docker.md); uso de la API en [api/README.md](../api/README.md).
+
+**MLflow.** `entrenar_informalidad.py` registra cada entrenamiento (parámetros, métricas de prueba de los tres
+modelos e informe) en `mlruns/mlflow.db`. El modelo se versiona con el último mes de datos: `lgbm-202605`.
+
+**API FastAPI** ([`api.py`](../src/observatorio/api.py)). `/salud`, `/opciones` y `/prediccion`. Comprobado con el
+modelo real: una vendedora de 28 años, bachiller, de Guayas → 42 % de probabilidad de informalidad (suben la
+provincia, la rama y el sexo; bajan la edad, el área urbana y la instrucción). El mismo perfil como profesional
+con educación superior en la enseñanza en Pichincha → 12 %. Una provincia inexistente → 422 con la lista válida.
+
+**Tests** ([`test_api.py`](../tests/test_api.py)). Con un modelo sintético guardado en una carpeta temporal: no
+necesitan microdatos. Comprueban respuestas, explicaciones, el orden lógico (rural y educación básica → más
+informal) y los errores 422. Total del proyecto: 38 tests.
+
+**Docker** ([`api/Dockerfile`](../api/Dockerfile)). `python:3.12-slim` + `libgomp1` (LightGBM), solo la API y el
+modelo, usuario sin privilegios y *healthcheck*. Dependencias mínimas en `requirements-api.txt`.
+
+**CI del modelo** (`.github/workflows/observatorio-laboral-ec-modelo.yml`): ingesta con caché → entrenamiento →
+puerta de calidad (AUC ≥ 0,88, mejor que la logística, calibración < 1,5 pp) → tests de la API → `docker build` →
+prueba de humo del contenedor con `curl` → modelo e informe como artefacto. No usa secretos.
+
+**Incidencias y aprendizajes**
+- *MLflow 3 rechaza el almacén en carpetas* («filesystem tracking backend is in maintenance mode»): se pasó a
+  SQLite (`sqlite:///mlruns/mlflow.db`), que además necesita `alembic`.
+- *Docker no arranca en este equipo* (sin WSL2): la imagen se construye y prueba en GitHub Actions.
+- *SHAP en producción sin `shap`*: LightGBM calcula las contribuciones exactas con `pred_contrib=True`.
+- *La API no depende de la configuración de la base de datos*: se separó de `config.py` para que la imagen no
+  necesite `python-dotenv` ni conexión a Neon.
+

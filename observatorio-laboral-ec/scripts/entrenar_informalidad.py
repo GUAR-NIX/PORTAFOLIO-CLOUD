@@ -176,6 +176,31 @@ def explicar(modelo: lgb.LGBMClassifier, te: pd.DataFrame, ruta_dir: Path) -> di
             "efecto_medio_por_categoria": efectos}
 
 
+def registrar_en_mlflow(resultados: dict, modelo: lgb.LGBMClassifier, version: str) -> None:
+    """Registra el experimento en MLflow (carpeta local mlruns/) si MLflow está instalado."""
+    try:
+        import mlflow
+    except ImportError:
+        print("MLflow no está instalado: se omite el registro del experimento")
+        return
+    carpeta = RAIZ / "mlruns"
+    carpeta.mkdir(exist_ok=True)
+    mlflow.set_tracking_uri(f"sqlite:///{(carpeta / 'mlflow.db').as_posix()}")  # MLflow 3: backend SQLite
+    if mlflow.get_experiment_by_name("informalidad") is None:
+        mlflow.create_experiment("informalidad", artifact_location=(carpeta / "artefactos").as_uri())
+    mlflow.set_experiment("informalidad")
+    with mlflow.start_run(run_name=version):
+        mlflow.log_params({k: v for k, v in modelo.get_params().items()
+                           if isinstance(v, int | float | str) and v is not None})
+        mlflow.log_param("variables", ",".join(VARIABLES))
+        mlflow.log_param("iteraciones", resultados["lgbm_iteraciones"])
+        for nombre, m in resultados["prueba"].items():
+            mlflow.log_metrics({f"{nombre}.{k}": v for k, v in m.items()})
+        mlflow.log_artifacts(str(SALIDA), artifact_path="informe")
+        mlflow.set_tag("version_modelo", version)
+    print(f"Experimento registrado en MLflow ({RAIZ / 'mlruns'})")
+
+
 def main() -> None:
     inicio = time.time()
     SALIDA.mkdir(parents=True, exist_ok=True)
@@ -228,9 +253,13 @@ def main() -> None:
 
     texto = json.dumps(resultados, indent=2, ensure_ascii=False)
     (SALIDA / "metricas.json").write_text(texto, encoding="utf-8")
+    version = f"lgbm-{df['periodo'].max()}"  # el modelo se identifica por el último mes de datos usado
     joblib.dump({"modelo": lgbm, "variables": VARIABLES, "categoricas": CATEGORICAS,
-                 "categorias": {c: list(df[c].cat.categories) for c in CATEGORICAS}},
+                 "categorias": {c: list(df[c].cat.categories) for c in CATEGORICAS},
+                 "version": version,
+                 "tasa_referencia": round(tasa_ponderada(te[OBJETIVO], te[PESO]), 4)},
                 MODELOS / "informalidad_lgbm.joblib")
+    registrar_en_mlflow(resultados, lgbm, version)
 
     for nombre, m in resultados["prueba"].items():
         print(f"{nombre:24s}", {k: round(v, 4) for k, v in m.items()})

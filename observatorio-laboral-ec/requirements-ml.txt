@@ -6,3 +6,5 @@ shap>=0.46
 matplotlib>=3.8
 joblib>=1.4
 statsmodels>=0.14    # Fase 7 · pronóstico (ETS, SARIMA)
+mlflow-skinny>=3.0   # Fase 8 · registro de experimentos (backend SQLite en mlruns/)
+alembic>=1.13        # lo necesita el backend SQLite de MLflow

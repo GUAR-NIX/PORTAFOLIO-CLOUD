@@ -1,0 +1,15 @@
+# La imagen de la API solo copia src/observatorio/api.py y el modelo; esto evita enviar el resto al build.
+.venv/
+.env
+*.env
+data/
+mlruns/
+dbt/
+bi/
+docs/
+reports/
+notebooks/
+tests/
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/

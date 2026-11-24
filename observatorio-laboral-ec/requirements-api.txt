@@ -1,0 +1,8 @@
+# Fase 8 · dependencias mínimas para servir el modelo (imagen Docker de la API)
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.5
+lightgbm>=4.7
+joblib>=1.4
+fastapi>=0.115
+uvicorn>=0.30
