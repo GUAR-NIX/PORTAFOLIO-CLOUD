@@ -1,7 +1,7 @@
 # Guía paso a paso
 
 Registro de lo hecho en cada fase: qué, por qué, problemas encontrados y cómo se resolvieron, con evidencias.
-[Volver al README](../README.md)
+[Volver al README](../README.es.md)
 
 ## Fase 0 · Base (2026-11-23)
 

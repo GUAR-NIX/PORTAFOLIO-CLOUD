@@ -1,44 +1,61 @@
-🇪🇸 **Español** · 🇬🇧 [English](README.en.md)
+🇺🇸 **English** · 🇪🇸 [Español](README.es.md)
 
-# Portafolio de Ingeniería de datos y Cloud
+# Cloud, DevOps and data engineering portfolio
 
-Streaming, orquestación, modern data stack, serverless, Kubernetes y lakehouse con Iceberg, ejecutados en local con Docker y con infraestructura como código lista para la nube.
+Seven projects on Kubernetes, infrastructure as code, serverless, orchestration, streaming and an automated data platform. Each
+one has code, tests, a CI workflow and results measured in a real run.
 
-**Herramientas principales:** Docker · Spark · Airflow · Dagster · dbt · Kubernetes · Terraform · Iceberg · PostgreSQL · LightGBM · FastAPI · Power BI
+| Measured result | Project | Evidence |
+|---|---|---|
+| **68.5 → 476.3 requests/s** from 1 to 4 replicas; **0 errors in 39,842 requests** during a rolling upgrade | [Climate API on Kubernetes](kubernetes-api-clima/README.md) | [Load test](kubernetes-api-clima/reports/carga_cluster_resumen.csv) · [upgrade](kubernetes-api-clima/reports/rolling_update.json) |
+| **2,080 repeated events, 0 duplicates**; S3 to DynamoDB in 72 ms (p50, warm) | [Serverless earthquake alerts](serverless-sismos-localstack/README.md) | [Reports](serverless-sismos-localstack/reports) |
+| **0 duplicates and 0 lost** after 3 `docker kill` and an injected failure, over 11.4 million events | [GitHub activity streaming](streaming-github-redpanda-spark/README.md) | [Reports](streaming-github-redpanda-spark/reports) |
+| **20 of 20** official rates reproduced by a weekly pipeline, 40 dbt tests | [Ecuador Labor Observatory](observatorio-laboral-ec/README.md) | [Runs](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml) |
 
-Cada carpeta es un proyecto independiente, con su propio README (resultados primero), guía paso a paso, pruebas automáticas y cómo reproducirlo. Los datos crudos no se versionan: cada proyecto trae un script que los descarga desde la fuente oficial.
+## Start here
 
-## Proyecto destacado
-
-**[📊 Observatorio laboral del Ecuador](observatorio-laboral-ec/)**: de los microdatos de la encuesta de empleo del
-INEC a un modelo en producción. **En vivo:** [app con simulador](https://observatorio-laboral-ec.streamlit.app) ·
-[tablero público](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0).
-
-## Proyectos
-
-| Proyecto | De qué trata |
+| If you are looking for… | Go to |
 |---|---|
-| [**📊 Observatorio laboral del Ecuador · ENEMDU → dbt → ML → Power BI**](observatorio-laboral-ec/) ⭐ | Proyecto integrador de punta a punta con los microdatos de la encuesta de empleo del INEC: ingesta automatizada a PostgreSQL (Neon), dbt con 40 tests, tasas oficiales reproducidas, Power BI, modelo LightGBM explicable (AUC 0,91), pronóstico con backtesting, API en Docker, monitor de deriva y pipeline semanal. **En vivo:** [app](https://observatorio-laboral-ec.streamlit.app) · [tablero](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) |
-| [**Ingesta diaria de APIs públicas con Apache Airflow · clima del Ecuador + Banco Mundial**](airflow-apis-postgres/) | Orquestación con Apache Airflow 3.3 en Docker Compose: tres DAG que traen el clima diario de 13 ciudades del Ecuador (Open-Meteo) y 10 indicadores del Banco Mundial para Ecuador y 7 países de la región, y los cargan en Postgres… |
-| [**☁️ API de clima del Ecuador en Kubernetes · FastAPI, Helm y observabilidad**](kubernetes-api-clima/) | API FastAPI y aplicación Streamlit para consultar 4.392 observaciones diarias de clima de 12 ciudades del Ecuador durante 2024, desplegadas en un clúster kind local con Helm, Ingress, HPA, metrics-server, Prometheus y Grafana.… |
-| [**🧊 Lakehouse local con Apache Iceberg + Trino + Nessie sobre los pageviews de Wikipedia**](lakehouse-iceberg-trino-nessie/) | Lakehouse completo en Docker Compose: MinIO como S3, Nessie como catálogo Iceberg REST con ramas tipo git, Trino como motor SQL y un cargador en Python (PyIceberg). Ingiere 96 dumps horarios de pageviews de Wikipedia (18 al 21 de… |
-| [**🌦️ Modern data stack local: Dagster + dbt + DuckDB + MinIO sobre NOAA GHCN-Daily**](modern-data-stack-dagster-dbt/) | Pipeline orquestado por activos que ingiere 177,5 millones de observaciones diarias de ~45.000 estaciones meteorológicas del mundo (NOAA GHCN-Daily, años 2022–2026, 6,4 GB de CSV), las guarda en un lago tipo S3 (MinIO, Parquet) y… |
-| [**🌎 Alertas serverless de sismos · USGS → S3 → Lambda → DynamoDB → SNS**](serverless-sismos-localstack/) | Pipeline orientado a eventos que valida GeoJSON del USGS, guarda cada sismo una sola vez y emite una alerta para eventos de magnitud ≥ 5 a menos de 1.500 km del centro de Ecuador. La arquitectura AWS se despliega con Terraform… |
-| [**Streaming en tiempo real de la actividad de GitHub · Redpanda + Spark Structured Streaming + Delta Lake**](streaming-github-redpanda-spark/) | Plataforma de streaming 100 % local en Docker: 11,4 millones de eventos públicos de GitHub (GH Archive, 16–18 sep 2025) se reproducen hacia Redpanda (Kafka) respetando sus marcas de tiempo, y Spark Structured Streaming los lleva… |
+| **Cloud and DevOps** | [Kubernetes](kubernetes-api-clima/README.md): Helm, HPA, Prometheus · [Serverless](serverless-sismos-localstack/README.md): Terraform, Lambda, LocalStack |
+| **A live demo** | [Ecuador Labor Observatory app](https://observatorio-laboral-ec.streamlit.app/?lang=en) ([project](observatorio-laboral-ec/README.md)) |
+| **CI and automation** | [Workflows](.github/workflows) · [runs](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions) |
+| **Infrastructure as code** | [AWS serverless](serverless-sismos-localstack/terraform) · [AWS lakehouse](lakehouse-iceberg-trino-nessie/terraform/aws) · [AWS streaming](streaming-github-redpanda-spark/infra/terraform/aws) · [GCP](modern-data-stack-dagster-dbt/terraform/gcp) |
+| **Design decisions** | [Observatory ADRs](observatorio-laboral-ec/docs/adr) (Spanish) and the decisions section of each full README |
 
-## Cómo usar este repositorio
+## Projects
+
+| Project | What it is | CI | Tests |
+|---|---|---|---|
+| [Ecuador Labor Observatory](observatorio-laboral-ec/README.md) (featured) | Survey microdata to PostgreSQL, dbt, a containerized API, a public app and a drift monitor | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml) | [tests](observatorio-laboral-ec/tests) |
+| [Climate API on Kubernetes](kubernetes-api-clima/README.md) | FastAPI and Streamlit on a local kind cluster with Helm, Ingress, HPA, Prometheus and Grafana, with measured load tests | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/kubernetes-api-clima.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/kubernetes-api-clima.yml) | [tests](kubernetes-api-clima/tests) |
+| [Serverless earthquake alerts](serverless-sismos-localstack/README.md) | S3, Lambda, DynamoDB and SNS deployed with Terraform on LocalStack, with idempotent writes | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/serverless-sismos-localstack.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/serverless-sismos-localstack.yml) | [tests](serverless-sismos-localstack/tests) |
+| [GitHub activity streaming](streaming-github-redpanda-spark/README.md) | Redpanda, Spark Structured Streaming and Delta Lake, exactly once | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/streaming-github-redpanda-spark.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/streaming-github-redpanda-spark.yml) | [tests](streaming-github-redpanda-spark/tests) |
+| [Scheduled ingestion with Airflow](airflow-apis-postgres/README.md) | Three Airflow 3.3 DAGs load weather for 13 cities and 10 World Bank indicators into PostgreSQL, with quality checks that stop the DAG | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/airflow-apis-postgres.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/airflow-apis-postgres.yml) | [tests](airflow-apis-postgres/tests) |
+| [Lakehouse with Iceberg, Trino and Nessie](lakehouse-iceberg-trino-nessie/README.md) | Time travel, schema and partition evolution, compaction and write-audit-publish with branches | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/lakehouse-iceberg-trino-nessie.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/lakehouse-iceberg-trino-nessie.yml) | [tests](lakehouse-iceberg-trino-nessie/tests) |
+| [Data stack with Dagster and dbt](modern-data-stack-dagster-dbt/README.md) | Asset-based pipeline over 177.5 million daily observations from about 45,000 weather stations | [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/modern-data-stack-dagster-dbt.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/modern-data-stack-dagster-dbt.yml) | [tests](modern-data-stack-dagster-dbt/tests) |
+
+## What was deployed and what was not
+
+- **Public:** the observatory app, its dashboard and its weekly pipeline, on free cloud tiers.
+- **Local or emulated:** everything else runs on Docker, kind or LocalStack. Terraform for AWS and GCP in the lakehouse, streaming
+  and Dagster projects is validated in CI and was never applied; cost figures are estimates.
+- Load and latency figures come from a laptop and are not production capacity.
+
+## How to use this repository
 
 ```bash
-git clone https://github.com/GUAR-NIX/portafolio-cloud.git
-cd portafolio-cloud/<proyecto>
+git clone https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD.git
+cd PORTAFOLIO-CLOUD/<project>
 ```
 
-Dentro de cada proyecto, sigue la sección «Cómo reproducir» de su README y `docs/GUIA_PASO_A_PASO.md`.
+Inside each project, follow the reproduction section of its README and `docs/GUIA_PASO_A_PASO.md` (Spanish). Raw data are not
+versioned: every project has a script that gets them from the official source. The observatory page is in English in full; the other
+projects have an English summary and a full README in Spanish.
 
-## Autor
+## Author
 
-**Erick Guarnizo** · [LinkedIn](https://www.linkedin.com/in/erick-g-571a7b3b4)
+**Erick Guarnizo** · [LinkedIn](https://www.linkedin.com/in/erick-g-571a7b3b4) · [GitHub profile](https://github.com/GUAR-NIX)
 
-## Licencia
+## License
 
-El código está bajo licencia [MIT](LICENSE). Los datos de cada proyecto conservan la licencia de su fuente, indicada en su README.
+Code is under the [MIT](LICENSE) license. Each project's data keep the license of their source, stated in its README.

@@ -1,164 +1,197 @@
-🇪🇸 **Español** · 🇬🇧 [English](README.en.md)
+🇺🇸 **English** · 🇪🇸 [Español](README.es.md)
 
-# 📊 Observatorio laboral del Ecuador · ENEMDU → dbt → ML → Power BI
+# 📊 Ecuador Labor Observatory · ENEMDU → dbt → ML → Power BI
 
 [![CI](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml)
-[![Pipeline semanal](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml)
-[![Modelo y API](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml)
+[![Weekly pipeline](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-pipeline.yml)
+[![Model and API](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml/badge.svg)](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec-modelo.yml)
 
-De los **microdatos de la encuesta de empleo del INEC (ENEMDU)** a un **modelo en producción** y un **dashboard público**:
-ingesta automatizada, data warehouse con dbt sobre PostgreSQL, indicadores oficiales reproducidos con factores de
-expansión, modelos de machine learning explicables, API, app web y monitorización. Coste cero y todo medido.
+From the **microdata of Ecuador's national employment survey (ENEMDU, by INEC, the national statistics institute)** to a
+**publicly deployed app** and a **public dashboard**: automated ingestion, a data warehouse with dbt on PostgreSQL, official
+indicators reproduced with survey expansion factors, explainable machine learning models, a containerized API and
+monitoring, run by GitHub Actions on free cloud tiers.
 
-## 🔗 En vivo
-
-| | Enlace | Qué hay |
-|---|---|---|
-| 🧮 **App** | **[observatorio-laboral-ec.streamlit.app](https://observatorio-laboral-ec.streamlit.app)** | Simulador de informalidad por perfil, con explicación de cada predicción, y pronóstico a 3 meses |
-| 📈 **Tablero** | **[Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)** | Indicadores mensuales con filtros de periodo, sexo y área, leídos en vivo de PostgreSQL |
-| 📄 **Power BI** | [Capturas y PDF](bi/README.md) | Informe de 4 páginas: resumen, brechas, territorio y calidad de los datos |
-| 📘 **Guía** | [Paso a paso](docs/GUIA_PASO_A_PASO.md) | Cada fase con sus decisiones, errores y cómo se resolvieron |
-
-## En cifras
+## In numbers
 
 | | |
 |---|---|
-| Datos | 41 meses de microdatos · 1,16 M de registros de personas · 559.089 de ocupados en el modelo |
-| Calidad | 20 de 20 tasas oficiales del INEC reproducidas al décimo (5 meses) · 40 tests de dbt · 50 tests de Python |
-| Modelo | AUC **0,910** en meses no vistos · tasa estimada a 0,4 puntos de la observada · AUC de 0,89 a 0,93 por sexo y área |
-| Pronóstico | Error medio **0,24 puntos** en el desempleo, 26 % mejor que la referencia |
-| Operación | Pipeline semanal · CI con puerta de calidad · Docker · monitor de deriva · coste 0 USD |
+| Data | 41 months of microdata · 1.16M person records · 559,089 employed-person records in the model |
+| Quality | 20 out of 20 official INEC rates reproduced to one decimal (5 months) · 40 dbt tests · 50 Python tests |
+| Model | AUC **0.910** on unseen months · estimated rate within 0.4 points of the observed one · AUC from 0.89 to 0.93 by sex and area |
+| Forecast | Mean error of **0.24 points** for unemployment, 26% better than the baseline |
+| Operations | Weekly pipeline · CI with a quality gate · Docker · drift monitor · 0 USD cost |
 
-## Resultados
+## Start here
 
-**Las tasas oficiales del INEC se reproducen desde los microdatos** (mayo de 2026, 27.369 personas encuestadas que
-representan a 19,09 millones de habitantes), aplicando la sintaxis oficial y el factor de expansión:
+| Looking for | Go to |
+|---|---|
+| **Demo** | [Live app](https://observatorio-laboral-ec.streamlit.app/?lang=en) · [public dashboard (Spanish)](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) |
+| **Code** | [Python package](src/observatorio) · [dbt project](dbt) · [API](src/observatorio/api.py) and [Dockerfile](api/Dockerfile) |
+| **Tests** | [pytest suite](tests) · [CI runs](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml) |
+| **Automation** | [Weekly pipeline](../.github/workflows/observatorio-laboral-ec-pipeline.yml) · [retraining and quality gate](../.github/workflows/observatorio-laboral-ec-modelo.yml) |
+| **Architecture** | [Diagram](#architecture) |
+| **Decisions** | [8 ADRs](#technical-decisions) (Spanish) |
 
-| Indicador | Calculado | INEC | Diferencia |
+Linked documents are in Spanish.
+
+## 🔗 Live
+
+| | Link | What is there |
+|---|---|---|
+| 🧮 **App** | **[observatorio-laboral-ec.streamlit.app](https://observatorio-laboral-ec.streamlit.app/?lang=en)** | Informality simulator by profile, with an explanation of every prediction, and a 3-month forecast (English and Spanish) |
+| 📈 **Dashboard** | **[Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)** | Monthly indicators with period, sex and area filters, read live from PostgreSQL (Spanish) |
+| 📄 **Power BI** | [Screenshots and PDF](bi/README.md) | 4-page report: summary, gaps, territory and data quality (Spanish) |
+| 📘 **Guide** | [Step by step](docs/GUIA_PASO_A_PASO.md) | Every phase with its decisions, mistakes and how they were solved (Spanish) |
+
+## Results
+
+**The official INEC rates are reproduced from the microdata** (May 2026, 27,369 respondents representing 19.09 million
+inhabitants), applying the official syntax and the expansion factor:
+
+| Indicator | Calculated | INEC | Difference |
 |---|---|---|---|
-| Tasa de participación global | 65,90 % | 65,9 % | 0,00 |
-| Tasa de empleo adecuado | 36,60 % | 36,6 % | 0,00 |
-| Tasa de subempleo | 18,32 % | 18,3 % | +0,02 |
-| Tasa de desempleo | 3,06 % | 3,1 % | −0,04 |
+| Global participation rate | 65.90% | 65.9% | 0.00 |
+| Adequate employment rate | 36.60% | 36.6% | 0.00 |
+| Underemployment rate | 18.32% | 18.3% | +0.02 |
+| Unemployment rate | 3.06% | 3.1% | −0.04 |
 
-Es la base de todo lo demás: si un indicador no coincide con el oficial, nada construido encima es fiable.
+This is the foundation for everything else: if an indicator does not match the official one, nothing built on top of it
+can be trusted.
 
-**Serie histórica automatizada:** la ingesta descarga y procesa **41 meses** (enero de 2023 a mayo de 2026) en 19 s;
-la segunda ejecución no descarga nada (idempotente, con manifiesto SHA-256). Los **5 meses** con cifra oficial
-publicada coinciden en las 4 tasas con diferencia 0,0.
+**Automated time series:** ingestion downloads and processes **41 months** (January 2023 to May 2026) in 19 s; the second
+run downloads nothing (idempotent, with a SHA-256 manifest). The **5 months** with a published official figure match on
+all 4 rates when rounded to one decimal.
 
-**En la nube:** 1.158.484 filas cargadas en PostgreSQL (Neon) con `COPY` en 71 s, carga idempotente y verificada
-dentro de la base: 0 duplicados y las tasas calculadas en SQL iguales a las del INEC (20 de 20).
+**In the cloud:** 1,158,484 rows loaded into PostgreSQL (Neon) with `COPY` in 71 s; the load is idempotent and verified
+inside the database: 0 duplicates and the rates computed in SQL match INEC's (20 out of 20).
 
-**Modelo estrella con dbt:** staging → intermediate → marts, con un hecho agregado de 73.630 filas (13 MB) y
-**40/40 tests en verde**, entre ellos uno que compara las tasas del mart con las oficiales del INEC. Ese test detectó
-un error real de doble redondeo antes de que llegara a ningún dashboard.
+**Star schema with dbt:** staging → intermediate → marts, with an aggregated fact table of 73,630 rows (13 MB) and
+**40/40 tests passing**, including one that compares the mart's rates with INEC's official ones. That test caught a real
+double-rounding bug before it reached any dashboard.
 
-**Pipeline automático:** cada lunes, GitHub Actions descarga los meses que el INEC haya publicado, los carga en Neon,
-ejecuta `dbt build` con los 40 tests, comprueba la frescura y publica un resumen con las últimas tasas. Primera
-ejecución en la nube: **en verde en 1 min 43 s**.
-Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
-variables: [diccionario](docs/datos/diccionario.md).
+**Automatic pipeline:** every Monday, GitHub Actions downloads the months INEC has published, loads them into Neon, runs
+`dbt build` with its 40 tests, checks freshness and publishes a summary with the latest rates. First green cloud run: **1 min 43 s**. Calculation: [`indicadores.py`](src/observatorio/indicadores.py) · validation:
+[`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) · variables: [dictionary](docs/datos/diccionario.md).
 
-**BI:** informe de Power BI de 4 páginas ([capturas y PDF](bi/README.md)) y
-**[tablero público en vivo en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)**,
-ambos con un usuario de base de datos de solo lectura.
+**BI:** a 4-page Power BI report ([screenshots and PDF](bi/README.md)) and a
+**[public live dashboard in Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)**,
+both using a read-only database user.
 
-**Machine learning · probabilidad de informalidad:** LightGBM sobre 559.089 ocupados (398.378 para entrenar), evaluado en 6 meses
-que nunca vio: **AUC 0,910** (regresión logística: 0,881) y **bien calibrado**: en mayo de 2026 estima 52,95 % de
-informalidad frente al 52,84 % observado en los microdatos. Con SHAP: la rama de actividad y la ocupación pesan más que
-todo lo demás, la educación superior protege y la edad tiene forma de U. No funciona peor para las mujeres ni para el
-área rural. → [Ficha del modelo](reports/modelo_informalidad/README.md)
+**Machine learning · probability of informality:** LightGBM on 559,089 employed-person records (398,378 for training),
+evaluated on 6 months it had never seen: **AUC 0.910** (logistic regression: 0.881) and **well calibrated**: for May 2026
+it estimates 52.95% informality versus 52.84% observed in the microdata. With SHAP: industry and occupation matter more
+than everything else, higher education is protective, and age is U-shaped. It does not perform worse for women or for
+rural areas. → [Model card](reports/modelo_informalidad/README.md)
 
-**Pronóstico con backtesting:** 12 orígenes móviles sin mirar el futuro. Gana la media de 3 meses (error de **0,24
-puntos** en el desempleo, 26 % mejor que repetir el último valor); SARIMA, más complejo, queda peor. Pronóstico para
-junio-agosto de 2026: **3,0 % de desempleo** (intervalo 80 %: 2,6–3,5). → [Resultados](reports/pronostico/README.md)
+**Forecast with backtesting:** 12 rolling origins, never looking at the future. The 3-month mean wins (an error of **0.24
+points** for unemployment, 26% better than repeating the last value); SARIMA, more complex, does worse. Since the model is
+chosen and measured on the same backtest, the winner's error is somewhat optimistic. Forecast for June–August 2026:
+**3.0% unemployment** (80% interval: 2.6–3.5). → [Results](reports/pronostico/README.md)
 
-**MLOps:** el modelo se sirve con una **API FastAPI** que explica cada predicción (los 3 factores que más suben o
-bajan la probabilidad), empaquetada en una imagen **Docker** mínima. Un workflow reentrena desde los datos del INEC,
-aplica una **puerta de calidad** (falla si el modelo no alcanza los umbrales mínimos), prueba la API y el contenedor;
-los experimentos quedan en **MLflow**. → [API](api/README.md)
+**MLOps:** the model is served by a **FastAPI API** that explains every prediction (the 3 factors that raise or lower the
+probability the most), packaged in a minimal **Docker** image. A workflow retrains from INEC's data, applies a **quality
+gate** (it fails if the model does not reach the minimum thresholds), and tests the API and the container; experiments are
+logged in **MLflow**. → [API](api/README.md)
 
-**Producto y monitorización:** **[app pública en Streamlit](https://observatorio-laboral-ec.streamlit.app)** con
-un simulador por perfil y el pronóstico; y un
-monitor semanal de deriva (PSI ponderado) y desempeño: **sin deriva** en los 12 meses posteriores al
-entrenamiento y AUC entre 0,90 y 0,92. → [Monitor](reports/monitoreo/README.md)
+**Product and monitoring:** a **[public Streamlit app](https://observatorio-laboral-ec.streamlit.app/?lang=en)** with a
+profile simulator and the forecast, and a weekly monitor of drift (weighted PSI) and performance: **no drift** in the 12
+months after training and AUC between 0.90 and 0.92. → [Monitor](reports/monitoreo/README.md)
 
-## Arquitectura
+## Architecture
 
 ```mermaid
 flowchart LR
-  INEC["INEC · ENEMDU<br/>microdatos"] --> ING["Ingesta Python<br/>Parquet"]
+  INEC["INEC · ENEMDU<br/>microdata"] --> ING["Python ingestion<br/>Parquet"]
   ING --> PG[("PostgreSQL<br/>Neon")]
   PG --> DBT["dbt<br/>staging → marts<br/>40 tests"]
   DBT --> BI["Power BI<br/>Data Studio"]
-  ING --> ML1["LightGBM + SHAP<br/>informalidad"]
-  ING --> ML2["Pronóstico<br/>backtesting"]
+  ING --> ML1["LightGBM + SHAP<br/>informality"]
+  ING --> ML2["Forecast<br/>backtesting"]
   ML1 --> MLF["MLflow"]
-  ML1 --> API["API FastAPI<br/>Docker"]
-  ML1 & ML2 --> APP["App Streamlit<br/>pública"]
-  ML1 -.-> MON["Monitor de deriva<br/>PSI ponderado"]
-  GHA["GitHub Actions<br/>semanal + CI"] -.-> ING & DBT & MON
+  ML1 --> API["FastAPI API<br/>Docker"]
+  ML1 & ML2 --> APP["Public<br/>Streamlit app"]
+  ML1 -.-> MON["Drift monitor<br/>weighted PSI"]
+  GHA["GitHub Actions<br/>weekly + CI"] -.-> ING & DBT & MON
 ```
 
-## Fases
+## Technical decisions
 
-| Fase | Contenido | Estado |
-|---|---|---|
-| 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
-| 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
-| 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
-| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
-| 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
-| 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
-| 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
-| 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
-| 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
-| 9 · Producto | **[App pública](https://observatorio-laboral-ec.streamlit.app)** con simulador por perfil y pronóstico ([detalle](app/README.md)) | ✅ |
-| 10 · Monitorización | [PSI ponderado y desempeño mensual](reports/monitoreo/README.md) en el pipeline semanal | ✅ |
-| 11 · Publicación | README con enlaces en vivo, guía completa y proyecto destacado en el perfil | ✅ |
-
-## Decisiones técnicas
-
-| ADR | Decisión |
+| ADR (Spanish) | Decision |
 |---|---|
-| [0001](docs/adr/ADR-0001-alcance-y-fuentes.md) | Microdatos de la ENEMDU con factores de expansión; validar contra las tasas oficiales del INEC (< 0,1 puntos) |
-| [0002](docs/adr/ADR-0002-nube-gratuita.md) | Nube gratuita real: Neon (PostgreSQL), GitHub Actions, Streamlit Community Cloud, MLflow |
-| [0003](docs/adr/ADR-0003-dbt-modelo-estrella.md) | dbt en tres capas y modelo estrella; BI y ML solo leen `marts` |
-| [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (mercado ecuatoriano) + Looker Studio (enlace público) |
-| [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
-| [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Pronóstico: backtesting de origen móvil contra referencias ingenuas; intervalos empíricos |
-| [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, API FastAPI en Docker mínimo y CI que reentrena con puerta de calidad |
-| [0008](docs/adr/ADR-0008-monitoreo-deriva.md) | Monitor de deriva: PSI ponderado por el diseño muestral y calibración con media móvil de 3 meses |
+| [0001](docs/adr/ADR-0001-alcance-y-fuentes.md) | ENEMDU microdata with expansion factors; validate against INEC's official rates (< 0.1 points) |
+| [0002](docs/adr/ADR-0002-nube-gratuita.md) | A genuinely free cloud: Neon (PostgreSQL), GitHub Actions, Streamlit Community Cloud, MLflow |
+| [0003](docs/adr/ADR-0003-dbt-modelo-estrella.md) | dbt in three layers and a star schema |
+| [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (Ecuadorian market) + Data Studio, formerly Looker Studio (public link) |
+| [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Informality model: INEC's definitions, no income variable (leakage), temporal validation, expansion weights |
+| [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Forecast: rolling-origin backtesting against naive baselines; empirical intervals |
+| [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, FastAPI API in minimal Docker and a CI that retrains with a quality gate |
+| [0008](docs/adr/ADR-0008-monitoreo-deriva.md) | Drift monitor: PSI weighted by the sampling design and calibration with a 3-month moving average |
 
-## Cómo reproducirlo
+## My role
+
+Personal project by **Erick Guarnizo**, owned end to end: ingestion, warehouse, models, API, container, workflows, app,
+dashboards and documentation. It uses public data from INEC. It has no affiliation with INEC, no client and no service-level
+commitment.
+
+## Key decisions
+
+- **Match the official rates before building anything on top** (difference under 0.1 points)
+  ([ADR-0001](docs/adr/ADR-0001-alcance-y-fuentes.md)).
+- **Free managed services and GitHub Actions as the scheduler**, so the run history is public evidence
+  ([ADR-0002](docs/adr/ADR-0002-nube-gratuita.md)).
+- **Temporal validation and no income variable**, to avoid leakage ([ADR-0005](docs/adr/ADR-0005-modelo-informalidad.md)).
+- **A quality gate in CI**: the workflow fails if AUC is below 0.88, if logistic regression is not beaten or if calibration is off by
+  1.5 points or more ([ADR-0007](docs/adr/ADR-0007-mlops-api-docker.md)).
+- **A small own drift monitor** instead of a library, because PSI had to be weighted by the survey design
+  ([ADR-0008](docs/adr/ADR-0008-monitoreo-deriva.md)).
+
+## Trade-offs
+
+- **Free tier storage** (about 0.5 GB): aggregated marts are served instead of all the microdata.
+- **Two dashboards to maintain**, limited to the main indicators so they do not diverge
+  ([ADR-0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md)).
+- **The API is delivered as a tested Docker image, not as a hosted service**; the public demo is the Streamlit app.
+- **The drift monitor informs but does not block** the data pipeline (`continue-on-error`).
+- **Only 41 months of history**: the 3-month mean won the backtest, and its error is somewhat optimistic because it was chosen and
+  measured on the same backtest ([ADR-0006](docs/adr/ADR-0006-pronostico-desempleo.md)).
+
+## What failed
+
+- **A "read-only" database user that could write.** Checking its privileges showed that roles created in the provider's console
+  inherit administrator rights; it was dropped and recreated with SQL.
+- **Double rounding.** A mart stored two decimals and the test rounded again: 19.549 became 19.6 instead of 19.5. The dbt test caught
+  it.
+- **The first load hit PostgreSQL's 65,535-parameter limit.** The transaction rolled back cleanly and the load moved to `COPY`.
+- **A false drift alarm.** One noisy month asked for retraining; the rule now uses a 3-month moving average, with a test.
+- **The first two cloud runs of the pipeline failed** on missing and wrong secrets; the pre-check stopped the first with a clear message.
+
+Details: [step-by-step guide](docs/GUIA_PASO_A_PASO.md) (Spanish).
+
+## How results were measured
+
+| Result | Method |
+|---|---|
+| 20 of 20 official rates | Rates computed from microdata with INEC's syntax and expansion factors, rounded to one decimal and compared with the published ones ([script](scripts/validar_tasas_oficiales.py)) |
+| AUC 0.910 | Six months held out by time and used once, weighted by the expansion factor ([model card](reports/modelo_informalidad/README.md)) |
+| 0.24 points of forecast error | Rolling-origin backtest with 12 origins and horizons of 1 to 3 months ([results](reports/pronostico/README.md)) |
+| No drift in 12 months | Weighted PSI per variable and monthly AUC ([monitor](reports/monitoreo/README.md)) |
+
+## How to reproduce it
 
 ```bash
 cd observatorio-laboral-ec
-python -m venv .venv && source .venv/bin/activate      # en Windows: .venv\Scripts\Activate.ps1
+python -m venv .venv && source .venv/bin/activate      # on Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
-cp .env.example .env                                   # y ajusta la conexión a PostgreSQL
+cp .env.example .env                                   # and set the PostgreSQL connection
 pytest
-python -m observatorio.ingesta --desde 2023-01 --hasta actual   # microdatos (PYTHONPATH=src)
-pip install -r requirements-ml.txt && python scripts/entrenar_informalidad.py   # modelo, ~10 s
-python scripts/pronosticar_indicadores.py                                       # pronóstico y backtesting
+export PYTHONPATH=src
+python -m observatorio.ingesta --desde 2023-01 --hasta actual                   # microdata
+pip install -r requirements-ml.txt && python scripts/entrenar_informalidad.py   # model, ~10 s
+python scripts/pronosticar_indicadores.py                                       # forecast and backtesting
 ```
 
-## Estructura
+## Data source and license
 
-```
-src/observatorio/   Código Python: indicadores oficiales, ingesta, carga, modelo, pronóstico, monitor, API
-scripts/            Validación contra el INEC, entrenamiento, pronóstico, monitor de deriva, permisos de BI
-dbt/                Transformaciones SQL (staging → intermediate → marts) y tests de datos
-reports/            Fichas, métricas y figuras del modelo, del pronóstico y del monitor
-api/  app/          Dockerfile de la API y app pública en Streamlit
-bi/                 Informe de Power BI, PDF y capturas
-docs/               ADR, fuentes, diccionario de datos y guía paso a paso
-tests/              Tests de Python (50)
-```
-
-## Fuente de datos y licencia
-
-Código bajo [MIT](LICENSE). Datos: **INEC**, Encuesta Nacional de Empleo, Desempleo y Subempleo (ENEMDU). Conservan
-los términos de uso de su publicador y no se redistribuyen en este repositorio: el proyecto los descarga desde la
-fuente oficial. El modelo publicado en `app/modelo/` no contiene microdatos, solo los árboles entrenados.
+Code under [MIT](LICENSE). Data: **INEC**, National Survey of Employment, Unemployment and Underemployment (ENEMDU). The
+data keep their publisher's terms of use and are not redistributed in this repository: the project downloads them from the
+official source. The model published in `app/modelo/` contains no microdata, only the trained trees.
