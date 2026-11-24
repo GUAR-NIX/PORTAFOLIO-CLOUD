@@ -82,15 +82,34 @@ Santiago y Napo frente al 27 % en Pichincha; las mujeres tienen más desempleo y
 hombres; y el ingreso medio de un hombre con educación superior (869 USD) supera en 116 USD al de una mujer con el
 mismo nivel (753 USD).
 
-## Looker Studio (versión pública)
-Fuente de datos: conector **PostgreSQL** → host de Neon, base `neondb`, usuario `bi_lector`, **SSL activado**, tabla
-`marts.bi_mercado_laboral`. Campos calculados:
+## Data Studio (antes Looker Studio) · versión pública en vivo
+
+**👉 [Abrir el tablero público](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0)**
+(no requiere cuenta; los datos se leen en vivo desde Neon).
+
+Contenido: tarjetas de desempleo, empleo adecuado, subempleo, informalidad y participación; serie mensual
+desde enero de 2023; filtros de periodo, sexo y área; nota de fuente y representatividad.
+
+Cómo se conectó:
+- Conector **PostgreSQL** de Google → host de Neon, puerto 5432, base `neondb`, usuario **`bi_lector`** (solo lectura).
+- **SSL activado** con el certificado raíz público de Neon (*ISRG Root X1*, de Let's Encrypt). Data Studio exige subir
+  el certificado del servidor cuando se activa SSL.
+- **Consulta personalizada** `select … from marts.bi_mercado_laboral`: el selector de tablas del conector solo
+  lista el esquema `public`, y `bi_lector` únicamente puede leer `marts`.
+- Credenciales del propietario guardadas en la fuente: quien abre el enlace ve el tablero, pero no los datos de
+  conexión.
+
+Campos calculados (tipo **Porcentaje**; el ingreso en **USD**):
 
 ```
-Tasa de desempleo      = SUM(desempleo) / SUM(pea)
-Tasa de empleo adecuado = SUM(empleo_adecuado) / SUM(pea)
-Tasa de subempleo      = SUM(subempleo) / SUM(pea)
-Tasa de informalidad   = SUM(empleo_informal) / SUM(empleo)
-Tasa de participación  = SUM(pea) / SUM(pet)
+Tasa de desempleo            = SUM(desempleo) / SUM(pea)
+Tasa de empleo adecuado      = SUM(empleo_adecuado) / SUM(pea)
+Tasa de subempleo            = SUM(subempleo) / SUM(pea)
+Tasa de informalidad         = SUM(empleo_informal) / SUM(empleo)
+Tasa de participacion global = SUM(pea) / SUM(pet)
+Ingreso laboral medio        = SUM(ingreso_laboral_total) / SUM(empleo_con_ingreso)
 ```
-Tipo: **Porcentaje**. Una página con tarjetas, serie temporal y filtros de sexo, área y región.
+
+- *La fecha se usa como «Año-mes»*: con el tipo Fecha (día) la serie temporal dibujaba picos hasta cero entre meses.
+- *«Access blocked: Error 400 invalid_scope»* al autorizar Data Studio desde el navegador integrado de una aplicación:
+  Google solo concede ese permiso en navegadores normales (Chrome, Edge). Se hizo desde Chrome.

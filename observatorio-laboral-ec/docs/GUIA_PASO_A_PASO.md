@@ -196,7 +196,7 @@ nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
 - *Aviso «Node.js 20 is deprecated»*: se actualizaron `actions/checkout` a v5 y `actions/setup-python` a v6, que ya
   funcionan con Node 24.
 
-## Fase 5 · Análisis y BI (en curso)
+## Fase 5 · Análisis y BI
 
 **Capa para BI.** Vista `marts.bi_mercado_laboral`: el hecho con etiquetas legibles (sexo, área, provincia, región,
 nivel de instrucción), con un test que garantiza que ninguna fila queda «Sin dato». Medidas DAX, diseño de las 4
@@ -229,4 +229,16 @@ solo muestra las tablas de `marts`, lo que confirma los permisos. Se importan `b
 - Comprobación cruzada: la tarjeta «Desempleo último mes» (3,1 %) y la tabla de Calidad dan el mismo valor desde dos
   caminos distintos (medida DAX sobre el hecho y tasa calculada en dbt).
 
-Pendiente de la fase: versión pública en Looker Studio (requiere la cuenta de Google del autor).
+**Tablero público en Data Studio** (antes Looker Studio):
+[enlace](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0). Conector PostgreSQL a Neon con
+`bi_lector`, SSL con el certificado raíz *ISRG Root X1* y consulta personalizada sobre `marts.bi_mercado_laboral`;
+seis campos calculados (suma ÷ suma), tarjetas, serie mensual y filtros de periodo, sexo y área. Compartido como
+«cualquiera con el enlace puede ver» (no listado). Detalles e incidencias en [bi/README.md](../bi/README.md).
+
+- *Error 400 invalid_scope* al autorizar Data Studio desde un navegador integrado: Google solo concede ese permiso
+  en navegadores normales; se hizo desde Chrome.
+- *«No hay tablas»* al conectar: el conector solo lista el esquema `public`; se usó una consulta personalizada.
+- *Serie con picos hasta cero*: la fecha estaba como día; se cambió a «Año-mes».
+
+**Fase 5 cerrada.**
+

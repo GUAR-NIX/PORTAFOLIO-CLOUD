@@ -61,7 +61,7 @@ flowchart LR
 | 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
 | 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
 | 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
-| 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y Looker Studio | 🔄 Power BI ✅ · Looker pendiente |
+| 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
 | 6 · ML: informalidad | Clasificación explicable (SHAP) con análisis de equidad | ⏳ |
 | 7 · ML: pronóstico | Tasa de desempleo con *backtesting* | ⏳ |
 | 8 · MLOps | MLflow, API en Docker, CI de modelos | ⏳ |
