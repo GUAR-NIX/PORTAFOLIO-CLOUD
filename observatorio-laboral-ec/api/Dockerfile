@@ -18,7 +18,7 @@ COPY requirements-api.txt .
 RUN pip install --no-cache-dir -r requirements-api.txt
 
 # Solo el código que la API necesita y el modelo; nada de datos ni secretos
-COPY src/observatorio/__init__.py src/observatorio/api.py src/observatorio/
+COPY src/observatorio/__init__.py src/observatorio/api.py src/observatorio/prediccion.py src/observatorio/
 COPY models/informalidad_lgbm.joblib models/
 
 # Usuario sin privilegios

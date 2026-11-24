@@ -7,6 +7,7 @@ on:
     paths:
       - "observatorio-laboral-ec/src/observatorio/modelo_informalidad.py"
       - "observatorio-laboral-ec/src/observatorio/api.py"
+      - "observatorio-laboral-ec/src/observatorio/prediccion.py"
       - "observatorio-laboral-ec/scripts/entrenar_informalidad.py"
       - "observatorio-laboral-ec/api/**"
       - "observatorio-laboral-ec/requirements-ml.txt"

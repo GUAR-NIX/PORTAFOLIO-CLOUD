@@ -9,7 +9,7 @@ lgb = pytest.importorskip("lightgbm")
 pytest.importorskip("fastapi")
 from fastapi.testclient import TestClient  # noqa: E402
 
-from observatorio import api  # noqa: E402
+from observatorio import api, prediccion  # noqa: E402
 from observatorio.modelo_informalidad import CATEGORICAS, VARIABLES  # noqa: E402
 
 CATEGORIAS = {
@@ -43,10 +43,10 @@ def cliente(tmp_path_factory):
                  "categorias": CATEGORIAS, "version": "test", "tasa_referencia": 0.5}, ruta)
     mp = pytest.MonkeyPatch()
     mp.setenv("MODELO_RUTA", str(ruta))
-    api.cargar.cache_clear()
+    prediccion.cargar.cache_clear()
     with TestClient(api.app) as c:
         yield c
-    api.cargar.cache_clear()
+    prediccion.cargar.cache_clear()
     mp.undo()
 
 

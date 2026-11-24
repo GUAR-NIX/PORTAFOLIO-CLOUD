@@ -9,24 +9,18 @@ Decisiones:
   responde 422 con la lista de valores permitidos, en lugar de predecir algo sin sentido.
 - La explicación usa las contribuciones nativas de LightGBM (`pred_contrib`), que son valores SHAP exactos
   para árboles: la imagen de producción no necesita la librería `shap`.
-- La API no guarda los perfiles que recibe.
+- La lógica vive en `observatorio.prediccion`, compartida con la app; la API no guarda los perfiles.
 """
 
 from __future__ import annotations
 
-import os
 from contextlib import asynccontextmanager
-from functools import lru_cache
-from pathlib import Path
 
-import joblib
-import numpy as np
-import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-# Sin depender de observatorio.config: la imagen de la API no necesita la configuración de la base de datos.
-RUTA_POR_DEFECTO = Path(__file__).resolve().parents[2] / "models" / "informalidad_lgbm.joblib"
+from observatorio import prediccion as pred
+
 VERSION_API = "1.0.0"
 
 
@@ -57,21 +51,9 @@ class Prediccion(BaseModel):
     version_modelo: str
 
 
-@lru_cache(maxsize=1)
-def cargar(ruta: str) -> dict:
-    p = Path(ruta)
-    if not p.exists():
-        raise FileNotFoundError(f"No existe el modelo en {p}. Entrénalo con scripts/entrenar_informalidad.py")
-    return joblib.load(p)
-
-
-def artefacto() -> dict:
-    return cargar(os.environ.get("MODELO_RUTA", str(RUTA_POR_DEFECTO)))
-
-
 @asynccontextmanager
 async def ciclo_de_vida(_: FastAPI):
-    artefacto()  # falla al arrancar, no en la primera petición, si el modelo no está
+    pred.artefacto()  # falla al arrancar, no en la primera petición, si el modelo no está
     yield
 
 
@@ -85,42 +67,25 @@ app = FastAPI(
 
 @app.get("/salud")
 def salud() -> dict:
-    a = artefacto()
+    a = pred.artefacto()
     return {"estado": "ok", "version_api": VERSION_API, "version_modelo": a.get("version", "sin versión")}
 
 
 @app.get("/opciones")
 def opciones() -> dict[str, list[str]]:
-    a = artefacto()
-    return {c: [str(v) for v in a["categorias"][c] if str(v) != "Sin dato"] for c in a["categoricas"]}
-
-
-def _a_dataframe(perfil: Perfil, a: dict) -> pd.DataFrame:
-    datos = perfil.model_dump()
-    errores = {}
-    for c in a["categoricas"]:
-        validas = [str(v) for v in a["categorias"][c]]
-        if datos[c] not in validas:
-            errores[c] = {"recibido": datos[c], "validos": [v for v in validas if v != "Sin dato"]}
-    if errores:
-        raise HTTPException(status_code=422, detail={"valores_no_validos": errores})
-    fila = pd.DataFrame([{v: datos[v] for v in a["variables"]}])
-    for c in a["categoricas"]:
-        fila[c] = pd.Categorical(fila[c], categories=a["categorias"][c])
-    fila["edad"] = fila["edad"].astype("float64")
-    return fila
+    return pred.opciones(pred.artefacto())
 
 
 @app.post("/prediccion", response_model=Prediccion)
 def prediccion(perfil: Perfil) -> Prediccion:
-    a = artefacto()
-    X = _a_dataframe(perfil, a)
-    modelo = a["modelo"]
-    prob = float(modelo.predict_proba(X)[0, 1])
-    contrib = np.asarray(modelo.booster_.predict(X, pred_contrib=True))[0, :-1]  # el último es el sesgo
+    a = pred.artefacto()
     datos = perfil.model_dump()
+    try:
+        prob, contrib = pred.predecir(datos, a)
+    except pred.ValoresNoValidos as e:
+        raise HTTPException(status_code=422, detail={"valores_no_validos": e.errores}) from e
     factores = [Factor(variable=v, valor=str(datos[v]), efecto=round(float(e), 3))
-                for v, e in zip(a["variables"], contrib, strict=True)]
+                for v, e in contrib.items()]
     suben = sorted((f for f in factores if f.efecto > 0), key=lambda f: -f.efecto)[:3]
     bajan = sorted((f for f in factores if f.efecto < 0), key=lambda f: f.efecto)[:3]
     return Prediccion(

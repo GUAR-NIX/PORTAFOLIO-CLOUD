@@ -348,3 +348,24 @@ prueba de humo del contenedor con `curl` → modelo e informe como artefacto. No
 - *La API no depende de la configuración de la base de datos*: se separó de `config.py` para que la imagen no
   necesite `python-dotenv` ni conexión a Neon.
 
+## Fase 9 · Producto: app pública (2026-11-24)
+
+**App Streamlit** ([`app/app.py`](../app/app.py), detalle en [app/README.md](../app/README.md)) con tres pestañas:
+simulador de informalidad por perfil (probabilidad, comparación con el promedio nacional y gráfico de factores
+SHAP), pronóstico a 3 meses con intervalo y tabla del backtesting, y ficha del modelo.
+
+- La lógica de predicción se movió a [`prediccion.py`](../src/observatorio/prediccion.py): la API y la app usan
+  exactamente el mismo código (los 38 tests siguen en verde tras el cambio).
+- Gráficos con Plotly y la paleta validada para daltonismo (azul observado/baja, naranja pronóstico, rojo sube),
+  con *tooltips* y leyenda.
+- Probada en el navegador: las tres pestañas cargan; el perfil de ejemplo da 42 % frente al 54 % nacional.
+- Para publicarla sin microdatos, se versiona una copia del modelo en `app/modelo/` (4 MB) y la app lee los
+  resultados del pronóstico ya versionados en `reports/`.
+
+**Incidencias**
+- *Aviso de Streamlit 1.67* (`use_container_width` obsoleto): se cambió a `width="stretch"`.
+- *Puntos sobre el área del intervalo*: Plotly añade marcadores por defecto en series cortas; se fijó
+  `mode="lines"` en la banda.
+
+**Pendiente:** publicar en Streamlit Community Cloud (requiere iniciar sesión con la cuenta de GitHub del autor).
+

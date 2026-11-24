@@ -84,7 +84,7 @@ flowchart LR
 | 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
 | 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
 | 8 · MLOps | MLflow, [API FastAPI](api/README.md) en Docker, CI que reentrena con puerta de calidad | ✅ |
-| 9 · Producto | App pública con simulador por perfil | ⏳ |
+| 9 · Producto | [App Streamlit](app/README.md) con simulador por perfil y pronóstico (publicación en la nube pendiente) | 🔄 |
 | 10 · Monitorización | Deriva de datos y del modelo | ⏳ |
 | 11 · Publicación | Resultados, guía y vídeo | ⏳ |
 
