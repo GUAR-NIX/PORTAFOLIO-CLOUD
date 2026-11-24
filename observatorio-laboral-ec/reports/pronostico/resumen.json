@@ -1,0 +1,66 @@
+{
+  "meses": 41,
+  "desde": "2023-01",
+  "hasta": "2026-05",
+  "horizonte": 3,
+  "origenes": 12,
+  "nivel_intervalo": 0.8,
+  "series": {
+    "tasa_desempleo": {
+      "mae_medio_pp": {
+        "media_movil_3": 0.242,
+        "ingenuo": 0.326,
+        "ets": 0.336,
+        "sarima": 0.38,
+        "estacional_ingenuo": 0.406
+      },
+      "mejor_modelo": "media_movil_3",
+      "mejora_sobre_ingenuo_pct": 25.6,
+      "pronostico": {
+        "2026-06": {
+          "pronostico": 3.03,
+          "inferior": 2.58,
+          "superior": 3.47
+        },
+        "2026-07": {
+          "pronostico": 3.03,
+          "inferior": 2.6,
+          "superior": 3.46
+        },
+        "2026-08": {
+          "pronostico": 3.03,
+          "inferior": 2.66,
+          "superior": 3.4
+        }
+      }
+    },
+    "tasa_empleo_sector_informal": {
+      "mae_medio_pp": {
+        "media_movil_3": 1.392,
+        "ets": 1.488,
+        "estacional_ingenuo": 1.691,
+        "ingenuo": 1.835,
+        "sarima": 6.168
+      },
+      "mejor_modelo": "media_movil_3",
+      "mejora_sobre_ingenuo_pct": 24.1,
+      "pronostico": {
+        "2026-06": {
+          "pronostico": 54.97,
+          "inferior": 52.75,
+          "superior": 57.18
+        },
+        "2026-07": {
+          "pronostico": 54.97,
+          "inferior": 52.69,
+          "superior": 57.24
+        },
+        "2026-08": {
+          "pronostico": 54.97,
+          "inferior": 53.27,
+          "superior": 56.66
+        }
+      }
+    }
+  }
+}

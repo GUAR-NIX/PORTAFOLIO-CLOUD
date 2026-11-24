@@ -284,3 +284,36 @@ estimada queda a menos de 1 punto de la observada.
   viven en `requirements-ml.txt` para que el pipeline semanal no los instale.
 - El modelo (`models/*.joblib`, 3,8 MB) no se versiona: se regenera con el script. Sí se versionan métricas y figuras.
 
+## Fase 7 · ML: pronóstico del desempleo (2026-11-24)
+
+**Pregunta.** ¿Cuánto será el desempleo (y la informalidad) en los próximos 3 meses, y con qué incertidumbre?
+Decisiones en [ADR-0006](adr/ADR-0006-pronostico-desempleo.md); resultados en
+[reports/pronostico](../reports/pronostico/README.md).
+
+**Serie.** 41 meses calculados desde los microdatos con `indicadores.tasas` (la misma función validada contra el
+INEC en la Fase 1).
+
+**Backtesting con origen móvil** ([`pronostico.py`](../src/observatorio/pronostico.py)). 12 orígenes: en cada uno el
+modelo solo ve los meses anteriores y pronostica 1, 2 y 3 meses. Un test comprueba que cada modelo recibe solo el
+pasado (24, 25, 26… meses) y nunca el valor que tiene que predecir.
+
+| Modelo | Desempleo · MAE (pp) | Informalidad · MAE (pp) |
+|---|---|---|
+| **Media de 3 meses** | **0,242** | **1,392** |
+| Último valor | 0,326 | 1,835 |
+| Suavizado exponencial | 0,336 | 1,488 |
+| SARIMA | 0,380 | 6,168 |
+| Mismo mes del año anterior | 0,406 | 1,691 |
+
+**Conclusión honesta.** Gana el modelo más simple. La serie tiene mucho ruido muestral (de 2,69 % en diciembre de
+2024 a 3,82 % en enero de 2025) y solo 41 meses: suavizar vale más que modelar estacionalidad. Pronóstico
+junio-agosto de 2026: desempleo 3,03 % (intervalo 80 %: 2,58–3,47) e informalidad 54,97 % (52,75–57,18).
+
+**Incidencias y aprendizajes**
+- *SARIMA inestable en la informalidad* (MAE 6,2 pp): con pocos datos, un modelo con más parámetros puede ser mucho
+  peor que uno ingenuo. Sin backtesting no se habría notado.
+- *Intervalos*: se usan los cuantiles de los errores reales del backtest en vez de suponer normalidad; con 12
+  errores por horizonte son orientativos y no siempre crecen con el horizonte.
+- Holt-Winters con tendencia y estacionalidad se descartó de entrada: con 41 meses, estimar 12 efectos mensuales
+  más la tendencia sobreajusta.
+

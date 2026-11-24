@@ -47,6 +47,10 @@ informalidad frente al 52,84 % observado (INEC: 52,8 %). Con SHAP: la rama de ac
 todo lo demás, la educación superior protege y la edad tiene forma de U. Funciona igual de bien para mujeres y para el
 área rural. → [Ficha del modelo](reports/modelo_informalidad/README.md)
 
+**Pronóstico con backtesting:** 12 orígenes móviles sin mirar el futuro. Gana la media de 3 meses (error de **0,24
+puntos** en el desempleo, 26 % mejor que repetir el último valor); SARIMA, más complejo, queda peor. Pronóstico para
+junio-agosto de 2026: **3,0 % de desempleo** (intervalo 80 %: 2,6–3,5). → [Resultados](reports/pronostico/README.md)
+
 ## Arquitectura
 
 ```mermaid
@@ -73,7 +77,7 @@ flowchart LR
 | 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
 | 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
-| 7 · ML: pronóstico | Tasa de desempleo con *backtesting* | ⏳ |
+| 7 · ML: pronóstico | Desempleo e informalidad a 3 meses con *backtesting* de origen móvil · [resultados](reports/pronostico/README.md) | ✅ |
 | 8 · MLOps | MLflow, API en Docker, CI de modelos | ⏳ |
 | 9 · Producto | App pública con simulador por perfil | ⏳ |
 | 10 · Monitorización | Deriva de datos y del modelo | ⏳ |
@@ -88,6 +92,7 @@ flowchart LR
 | [0003](docs/adr/ADR-0003-dbt-modelo-estrella.md) | dbt en tres capas y modelo estrella; BI y ML solo leen `marts` |
 | [0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md) | Power BI (mercado ecuatoriano) + Looker Studio (enlace público) |
 | [0005](docs/adr/ADR-0005-modelo-informalidad.md) | Modelo de informalidad: definiciones del INEC, sin ingreso (fuga), validación temporal, pesos de expansión |
+| [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Pronóstico: backtesting de origen móvil contra referencias ingenuas; intervalos empíricos |
 
 ## Cómo reproducirlo
 
@@ -99,6 +104,7 @@ cp .env.example .env                                   # y ajusta la conexión a
 pytest
 python -m observatorio.ingesta --desde 2023-01 --hasta actual   # microdatos (PYTHONPATH=src)
 pip install -r requirements-ml.txt && python scripts/entrenar_informalidad.py   # modelo, ~10 s
+python scripts/pronosticar_indicadores.py                                       # pronóstico y backtesting
 ```
 
 ## Estructura
