@@ -5,6 +5,7 @@ on:
     paths: ["modern-data-stack-dagster-dbt/**", ".github/workflows/modern-data-stack-dagster-dbt.yml"]
   pull_request:
     paths: ["modern-data-stack-dagster-dbt/**", ".github/workflows/modern-data-stack-dagster-dbt.yml"]
+  workflow_dispatch:
 defaults:
   run:
     working-directory: modern-data-stack-dagster-dbt
@@ -18,8 +19,8 @@ jobs:
       UBICACION_CRUDO: ${{ github.workspace }}/modern-data-stack-dagster-dbt/data/muestra
       PYTHONPATH: src
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -37,7 +38,7 @@ jobs:
     name: terraform fmt + validate (sin apply)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: fmt y validate con la imagen oficial
         run: |
           docker run --rm -v "$PWD/terraform/gcp:/tf" -w /tf hashicorp/terraform:1.13 fmt -check -recursive
@@ -48,5 +49,5 @@ jobs:
     name: docker compose config
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: docker compose config --quiet

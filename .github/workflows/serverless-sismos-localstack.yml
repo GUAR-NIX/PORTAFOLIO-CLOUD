@@ -5,6 +5,7 @@ on:
     paths: ["serverless-sismos-localstack/**", ".github/workflows/serverless-sismos-localstack.yml"]
   pull_request:
     paths: ["serverless-sismos-localstack/**", ".github/workflows/serverless-sismos-localstack.yml"]
+  workflow_dispatch:
 defaults:
   run:
     working-directory: serverless-sismos-localstack
@@ -13,8 +14,8 @@ jobs:
   unitarias:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -43,8 +44,8 @@ jobs:
       AWS_DEFAULT_REGION: us-east-1
       AWS_ENDPOINT_URL: http://localhost:4566
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with: {python-version: "3.12"}
       - uses: hashicorp/setup-terraform@v3
         with: {terraform_version: "1.13.4"}

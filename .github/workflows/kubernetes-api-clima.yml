@@ -5,6 +5,7 @@ on:
     paths: ["kubernetes-api-clima/**", ".github/workflows/kubernetes-api-clima.yml"]
   pull_request:
     paths: ["kubernetes-api-clima/**", ".github/workflows/kubernetes-api-clima.yml"]
+  workflow_dispatch:
 defaults:
   run:
     working-directory: kubernetes-api-clima
@@ -13,8 +14,8 @@ jobs:
   codigo:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -26,7 +27,7 @@ jobs:
   kubernetes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: azure/setup-helm@v4
         with: {version: "v3.19.0"}
       - run: helm lint --strict charts/clima-ecuador && helm template clima-ecuador charts/clima-ecuador > /tmp/manifiestos.yaml

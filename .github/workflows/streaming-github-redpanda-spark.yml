@@ -5,6 +5,7 @@ on:
     paths: ["streaming-github-redpanda-spark/**", ".github/workflows/streaming-github-redpanda-spark.yml"]
   pull_request:
     paths: ["streaming-github-redpanda-spark/**", ".github/workflows/streaming-github-redpanda-spark.yml"]
+  workflow_dispatch:
 defaults:
   run:
     working-directory: streaming-github-redpanda-spark
@@ -19,12 +20,12 @@ jobs:
       SPARK_MASTER: local[2]
       SPARK_DRIVER_MEMORY: 2g
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
@@ -39,7 +40,7 @@ jobs:
     name: docker compose config + imagen
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: docker compose config --quiet
       - name: Construir la imagen del proyecto (conectores precargados)
         run: docker build -f docker/spark/Dockerfile -t streaming-gh:local .
@@ -51,7 +52,7 @@ jobs:
       run:
         working-directory: streaming-github-redpanda-spark/infra/terraform/aws
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.8
