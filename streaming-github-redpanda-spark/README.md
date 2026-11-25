@@ -15,7 +15,7 @@ into **Redpanda** (Kafka) respecting their timestamps, and **Spark Structured St
 | **Data** | GH Archive, 72 hours, 6.2 GB compressed, 11,425,689 events (15 types) |
 | **Main run** | 3 days of GitHub replayed at **120x** in 36 min · 5,285 events/s sustained |
 | **Latency (p50 / p95)** | bronze 11.6 / 20.5 s · silver 20.4 / 32.2 s, from publication in Redpanda to the write in Delta |
-| **Exactly once** | 3 `docker kill` + 1 failure injected after writing a batch: **0 duplicates and 0 lost** in every layer |
+| **Exactly once** | 3 `docker kill` + 1 failure injected after writing a batch: **0 duplicates and 0 lost** in bronze and silver; gold matches except late events discarded by the watermark (3 and 24) |
 | **Maximum throughput** | 20,801 events/s written to bronze with the producer at full speed |
 | **Gold** | 5.03 million rows in 5 tables · 99 star spikes and 241 activity spikes detected in streaming |
 | **Queries** | DuckDB directly on Delta in MinIO (7 SQL queries) + Streamlit dashboard |

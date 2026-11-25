@@ -16,7 +16,7 @@ carga y los conteos cuadran al evento.
 | **Datos** | GH Archive, 72 horas, 6,2 GB comprimidos, 11.425.689 eventos (15 tipos) |
 | **Corrida principal** | 3 días de GitHub reproducidos a **120x** en 36 min · 5.285 eventos/s sostenidos |
 | **Latencia (p50 / p95)** | bronce 11,6 / 20,5 s · plata 20,4 / 32,2 s, de la publicación en Redpanda a la escritura en Delta |
-| **Exactamente una vez** | 3 `docker kill` + 1 falla inyectada tras escribir un lote: **0 duplicados y 0 perdidos** en todas las capas |
+| **Exactamente una vez** | 3 `docker kill` + 1 falla inyectada tras escribir un lote: **0 duplicados y 0 perdidos** en bronce y plata; oro coincide salvo tardíos descartados por el watermark (3 y 24) |
 | **Rendimiento máximo** | 20.801 eventos/s escritos en bronce con el productor a máxima velocidad |
 | **Oro** | 5,03 millones de filas en 5 tablas · 99 picos de estrellas y 241 picos de actividad detectados en streaming |
 | **Consultas** | DuckDB directo sobre Delta en MinIO (7 consultas SQL) + tablero Streamlit |

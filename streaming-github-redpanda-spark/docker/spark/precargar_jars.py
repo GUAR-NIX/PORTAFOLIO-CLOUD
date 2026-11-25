@@ -4,7 +4,10 @@ copian a la carpeta jars/ de PySpark. Así los jobs arrancan sin red y sin `spar
 Si Maven Central falla al servir un .pom (p. ej. "Connection refused" pasajero), Ivy da el conector por resuelto
 pero sin sus dependencias y Spark no avisa: la imagen se construiría sin kafka-clients y el pipeline moriría al
 arrancar con NoClassDefFoundError. Por eso se comprueba que estén los jars imprescindibles, se repite la
-resolución hasta 3 veces y, si aun así faltan, la construcción falla con un mensaje claro."""
+resolución hasta 3 veces y, si aun así faltan, la construcción falla con un mensaje claro.
+
+Si Maven Central no sirve ningún conector, spark-submit termina con error: también cuenta como intento fallido.
+Desde el segundo intento se añade el espejo de Maven Central en Google Cloud."""
 
 import shutil
 import subprocess
@@ -26,27 +29,31 @@ IMPRESCINDIBLES = [
 ]
 IVY = Path("/tmp/ivy")
 INTENTOS = 3
+ESPEJO = "https://maven-central.storage-download.googleapis.com/maven2/"
 
 
-def resolver() -> list[Path]:
+def resolver(con_espejo: bool) -> list[Path]:
     """Resuelve en un proceso nuevo: spark.jars.packages solo se lee al lanzar la JVM."""
     shutil.rmtree(IVY, ignore_errors=True)
+    espejo = f".config('spark.jars.repositories', {ESPEJO!r})" if con_espejo else ""
     codigo = (
         "from pyspark.sql import SparkSession; "
         f"SparkSession.builder.master('local[1]').config('spark.jars.packages', {','.join(PAQUETES)!r})"
-        f".config('spark.jars.ivy', {str(IVY)!r}).getOrCreate().stop()"
+        f".config('spark.jars.ivy', {str(IVY)!r}){espejo}.getOrCreate().stop()"
     )
-    subprocess.run([sys.executable, "-c", codigo], check=True)
+    # Sin check=True: si falla, los jars que faltan hacen que se repita el intento.
+    subprocess.run([sys.executable, "-c", codigo], check=False)
     return sorted((IVY / "jars").glob("*.jar"))
 
 
 for intento in range(1, INTENTOS + 1):
-    jars = resolver()
+    jars = resolver(con_espejo=intento > 1)
     faltan = [j for j in IMPRESCINDIBLES if not any(j in p.name for p in jars)]
     if not faltan:
         break
-    print(f"Intento {intento}/{INTENTOS}: Ivy no resolvió {faltan} (fallo de red al leer un .pom); se repite.")
-    time.sleep(15 * intento)
+    print(f"Intento {intento}/{INTENTOS}: Ivy no resolvió {faltan} (fallo de red con Maven).")
+    if intento < INTENTOS:
+        time.sleep(15 * intento)
 else:
     raise SystemExit(f"No se pudieron resolver los conectores de Spark: faltan {faltan}. "
                      "Revisa la conexión y vuelve a ejecutar `docker compose build`.")
