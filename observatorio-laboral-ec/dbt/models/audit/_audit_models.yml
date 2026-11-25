@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: aud_fct_mercado_laboral
+    description: >
+      Candidato del hecho principal (patrón escribir-auditar-publicar). Incremental por periodo. Si alguno de sus
+      tests falla, `dbt build` omite todos los modelos de `marts` y lo publicado no cambia.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: >-
+              periodo || '-' || sexo_cod || '-' || area_cod || '-' || provincia_cod || '-' || grupo_edad || '-'
+              || coalesce(nivel_instruccion_cod::text, 'na')
+    columns:
+      - name: periodo
+        data_tests:
+          - not_null
+          - relationships:
+              arguments: {to: "source('raw', 'cargas')", field: periodo}
+      - name: provincia_cod
+        data_tests:
+          - relationships:
+              arguments: {to: ref('provincias'), field: provincia_cod}
+      - name: cargado_utc
+        description: Momento de la carga con la que se calculó el mes (marca de agua del incremental).
+        data_tests: [not_null]
+      - name: version_logica
+        description: Huella del código que calculó el mes; si cambia, el mes se recalcula.
+
+  - name: aud_indicadores_nacionales
+    description: Tasas nacionales candidatas; `assert_tasas_iguales_al_inec` las compara con las oficiales.
+    columns:
+      - name: periodo
+        data_tests: [unique, not_null]

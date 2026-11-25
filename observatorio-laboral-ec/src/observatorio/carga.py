@@ -73,7 +73,7 @@ def cargar_periodo(engine: Engine, archivo: Path, esquema: str | None = "raw") -
         con.execute(text(f"DELETE FROM {control} WHERE periodo = :p"), {"p": periodo})
         con.execute(
             text(f"INSERT INTO {control} (periodo, filas, cargado_utc) VALUES (:p, :n, :t)"),
-            {"p": periodo, "n": len(df), "t": datetime.now(UTC).isoformat(timespec="seconds")},
+            {"p": periodo, "n": len(df), "t": datetime.now(UTC).isoformat(timespec="microseconds")},
         )
     log.info("%s cargado (%s filas)", periodo, f"{len(df):,}")
     return periodo, len(df)

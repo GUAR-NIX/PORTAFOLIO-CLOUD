@@ -52,7 +52,7 @@ jobs:
       - name: Carga en PostgreSQL (solo meses nuevos)
         run: python -m observatorio.carga --solo-faltantes
 
-      - name: dbt build (seeds, modelos y 40 tests)
+      - name: dbt build (audita el candidato y solo publica si pasan los tests)
         working-directory: observatorio-laboral-ec/dbt
         run: dbt build --profiles-dir .
 

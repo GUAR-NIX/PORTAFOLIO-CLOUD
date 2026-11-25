@@ -1,6 +1,7 @@
 {{ config(materialized='view') }}
 -- Vista para BI (Power BI y Looker Studio): el hecho con etiquetas legibles en lugar de códigos.
 -- Es una vista (0 bytes): las herramientas de BI agregan las poblaciones y calculan las tasas con sus medidas.
+{{ compuerta() }}
 with f as (
     select * from {{ ref('fct_mercado_laboral') }}
 ),

@@ -16,7 +16,7 @@ monitoring, run by GitHub Actions on free cloud tiers.
 | | |
 |---|---|
 | Data | 41 months of microdata · 1.16M person records · 559,089 employed-person records in the model |
-| Quality | 20 out of 20 official INEC rates reproduced to one decimal (5 months) · 40 dbt tests · 50 Python tests |
+| Quality | 20 out of 20 official INEC rates reproduced to one decimal (5 months) · 37 dbt tests · 58 Python tests (8 of them integration tests on PostgreSQL) |
 | Model | AUC **0.910** on unseen months · estimated rate within 0.4 points of the observed one · AUC from 0.89 to 0.93 by sex and area |
 | Forecast | Mean error of **0.24 points** for unemployment, 26% better than the baseline |
 | Operations | Weekly pipeline · CI with a quality gate · Docker · drift monitor · 0 USD cost |
@@ -30,7 +30,7 @@ monitoring, run by GitHub Actions on free cloud tiers.
 | **Tests** | [pytest suite](tests) · [CI runs](https://github.com/GUAR-NIX/PORTAFOLIO-CLOUD/actions/workflows/observatorio-laboral-ec.yml) |
 | **Automation** | [Weekly pipeline](../.github/workflows/observatorio-laboral-ec-pipeline.yml) · [retraining and quality gate](../.github/workflows/observatorio-laboral-ec-modelo.yml) |
 | **Architecture** | [Diagram](#architecture) |
-| **Decisions** | [8 ADRs](#technical-decisions) (Spanish) |
+| **Decisions** | [9 ADRs](#technical-decisions) (Spanish) |
 
 Linked documents are in Spanish.
 
@@ -66,11 +66,11 @@ all 4 rates when rounded to one decimal.
 inside the database: 0 duplicates and the rates computed in SQL match INEC's (20 out of 20).
 
 **Star schema with dbt:** staging → intermediate → marts, with an aggregated fact table of 73,630 rows (13 MB) and
-**40/40 tests passing**, including one that compares the mart's rates with INEC's official ones. That test caught a real
+**37 data tests passing**, including one that compares the mart's rates with INEC's official ones. That test caught a real
 double-rounding bug before it reached any dashboard.
 
 **Automatic pipeline:** every Monday, GitHub Actions downloads the months INEC has published, loads them into Neon, runs
-`dbt build` with its 40 tests, checks freshness and publishes a summary with the latest rates. First green cloud run: **1 min 43 s**. Calculation: [`indicadores.py`](src/observatorio/indicadores.py) · validation:
+`dbt build` (it audits the candidate and publishes only if the audit tests pass), checks freshness and publishes a summary with the latest rates. First green cloud run: **1 min 43 s**. Calculation: [`indicadores.py`](src/observatorio/indicadores.py) · validation:
 [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) · variables: [dictionary](docs/datos/diccionario.md).
 
 **BI:** a 4-page Power BI report ([screenshots and PDF](bi/README.md)) and a
@@ -103,7 +103,7 @@ months after training and AUC between 0.90 and 0.92. → [Monitor](reports/monit
 flowchart LR
   INEC["INEC · ENEMDU<br/>microdata"] --> ING["Python ingestion<br/>Parquet"]
   ING --> PG[("PostgreSQL<br/>Neon")]
-  PG --> DBT["dbt<br/>staging → marts<br/>40 tests"]
+  PG --> DBT["dbt<br/>staging → audit → marts<br/>37 tests"]
   DBT --> BI["Power BI<br/>Data Studio"]
   ING --> ML1["LightGBM + SHAP<br/>informality"]
   ING --> ML2["Forecast<br/>backtesting"]
@@ -126,6 +126,7 @@ flowchart LR
 | [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Forecast: rolling-origin backtesting against naive baselines; empirical intervals |
 | [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, FastAPI API in minimal Docker and a CI that retrains with a quality gate |
 | [0008](docs/adr/ADR-0008-monitoreo-deriva.md) | Drift monitor: PSI weighted by the sampling design and calibration with a 3-month moving average |
+| [0009](docs/adr/ADR-0009-dbt-incremental-y-publicacion-auditada.md) | Incremental dbt by period and audited publication: if a test fails, the marts do not change |
 
 ## My role
 
@@ -139,6 +140,9 @@ commitment.
   ([ADR-0001](docs/adr/ADR-0001-alcance-y-fuentes.md)).
 - **Free managed services and GitHub Actions as the scheduler**, so the run history is public evidence
   ([ADR-0002](docs/adr/ADR-0002-nube-gratuita.md)).
+- **Write, audit, publish**: candidates are tested in an `audit` schema, and if a test fails `dbt build` skips the published marts. Months
+  are incremental, with a load watermark and a fingerprint of the logic
+  ([ADR-0009](docs/adr/ADR-0009-dbt-incremental-y-publicacion-auditada.md)).
 - **Temporal validation and no income variable**, to avoid leakage ([ADR-0005](docs/adr/ADR-0005-modelo-informalidad.md)).
 - **A quality gate in CI**: the workflow fails if AUC is below 0.88, if logistic regression is not beaten or if calibration is off by
   1.5 points or more ([ADR-0007](docs/adr/ADR-0007-mlops-api-docker.md)).
@@ -148,6 +152,7 @@ commitment.
 ## Trade-offs
 
 - **Free tier storage** (about 0.5 GB): aggregated marts are served instead of all the microdata.
+- **Each table is published in its own transaction**, not all at once; for a moment the fact can be newer than the indicators.
 - **Two dashboards to maintain**, limited to the main indicators so they do not diverge
   ([ADR-0004](docs/adr/ADR-0004-bi-power-bi-y-looker.md)).
 - **The API is delivered as a tested Docker image, not as a hosted service**; the public demo is the Streamlit app.
@@ -159,6 +164,8 @@ commitment.
 
 - **A "read-only" database user that could write.** Checking its privileges showed that roles created in the provider's console
   inherit administrator rights; it was dropped and recreated with SQL.
+- **Tests ran after publishing.** A failing test turned the run red, but the bad table was already public. The audit layer fixed it.
+- **A wrong test count.** The documentation said 40 dbt tests; 40 was the number of `dbt build` nodes. There were 31 data tests, now 37.
 - **Double rounding.** A mart stored two decimals and the test rounded again: 19.549 became 19.6 instead of 19.5. The dbt test caught
   it.
 - **The first load hit PostgreSQL's 65,535-parameter limit.** The transaction rolled back cleanly and the load moved to `COPY`.
@@ -172,6 +179,8 @@ Details: [step-by-step guide](docs/GUIA_PASO_A_PASO.md) (Spanish).
 | Result | Method |
 |---|---|
 | 20 of 20 official rates | Rates computed from microdata with INEC's syntax and expansion factors, rounded to one decimal and compared with the published ones ([script](scripts/validar_tasas_oficiales.py)) |
+| Incremental build | Real data, local PostgreSQL 18, median of 3: candidate fact 3.58 s in full, 0.91 s for one month, 0.16 s without changes; total `dbt build` 7.0, 4.1 and 3.4 s, dominated by tests |
+| A rejected month never reaches the marts | 8 [integration tests](tests/test_dbt_incremental.py) with synthetic data in CI; removing the gate makes one fail |
 | AUC 0.910 | Six months held out by time and used once, weighted by the expansion factor ([model card](reports/modelo_informalidad/README.md)) |
 | 0.24 points of forecast error | Rolling-origin backtest with 12 origins and horizons of 1 to 3 months ([results](reports/pronostico/README.md)) |
 | No drift in 12 months | Weighted PSI per variable and monthly AUC ([monitor](reports/monitoreo/README.md)) |

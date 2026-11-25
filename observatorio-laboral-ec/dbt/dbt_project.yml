@@ -22,6 +22,8 @@ models:
     intermediate:
       +materialized: view
       +schema: intermediate
+    audit:              # candidatos: se prueban aquí antes de publicar en marts
+      +schema: audit
     marts:
       +materialized: table
       +schema: marts

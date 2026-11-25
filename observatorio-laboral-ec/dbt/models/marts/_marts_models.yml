@@ -5,23 +5,14 @@ models:
     description: >
       Hecho principal del modelo estrella. Grano: mes × sexo × área × provincia × grupo de edad × nivel de
       instrucción. Contiene poblaciones expandidas (sumas del factor de expansión), nunca tasas, para que cualquier
-      indicador se pueda recalcular correctamente a cualquier nivel de agregación.
-    data_tests:
-      - unique:
-          arguments:
-            column_name: >-
-              periodo || '-' || sexo_cod || '-' || area_cod || '-' || provincia_cod || '-' || grupo_edad || '-'
-              || coalesce(nivel_instruccion_cod::text, 'na')
+      indicador se pueda recalcular correctamente a cualquier nivel de agregación. Los tests de contenido se
+      ejecutan antes, sobre `aud_fct_mercado_laboral`.
     columns:
       - name: periodo
         data_tests:
           - not_null
           - relationships:
               arguments: {to: ref('dim_periodo'), field: periodo}
-      - name: provincia_cod
-        data_tests:
-          - relationships:
-              arguments: {to: ref('dim_provincia'), field: provincia_cod}
       - name: pea
         description: Población económicamente activa expandida.
 

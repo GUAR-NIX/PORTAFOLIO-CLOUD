@@ -135,7 +135,7 @@ tests de negocio:
 
 | Medida | Valor |
 |---|---|
-| `dbt build` | 4 seeds, 6 modelos, 30 tests de datos: 40/40 OK en 40 s |
+| `dbt build` | 4 seeds, 6 modelos y 30 tests de datos (40 nodos): 40/40 OK en 40 s |
 | Hecho `fct_mercado_laboral` | 73.630 filas, 13 MB (frente a 227 MB de la tabla cruda) |
 | Base de datos completa en Neon | 248 MB de 512 MB |
 
@@ -165,7 +165,7 @@ cada **lunes a las 08:00 de Ecuador** (y bajo demanda con *Run workflow*):
 1. **Ingesta** `--hasta actual`: descubre sola los meses que el INEC vaya publicando (los no publicados cuentan
    como «no publicado», no como error).
 2. **Carga** `--solo-faltantes`: consulta `raw.cargas` y solo carga los meses nuevos.
-3. **`dbt build`**: seeds, modelos y los 40 tests (incluida la comparación con el INEC).
+3. **`dbt build`**: seeds, modelos y tests (incluida la comparación con el INEC).
 4. **`dbt source freshness`**: aviso si no se carga nada en 45 días y error a los 75 (el INEC publica cada mes).
 5. **Resumen** con las tasas de los últimos 6 meses en la página del run.
 
@@ -174,7 +174,7 @@ son *secrets* del repositorio (`NEON_PGHOST`, `NEON_PGDATABASE`, `NEON_PGUSER`, 
 falla con un mensaje claro si falta alguno.
 
 **Prueba local de la misma secuencia contra Neon:** ingesta 41 meses + 6 no publicados, 0 errores; carga 0 periodos
-nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
+nuevos (41 ya estaban); `dbt build` 40/40 nodos; frescura PASS; resumen generado.
 
 **Primera ejecución en GitHub Actions (run #3, manual): en verde** en 1 min 43 s.
 
@@ -183,7 +183,7 @@ nuevos (41 ya estaban); `dbt build` 40/40; frescura PASS; resumen generado.
 | Comprobar secrets | OK | 0 s |
 | Ingesta de los meses publicados | OK | 35 s |
 | Carga en Neon (solo meses nuevos) | OK | 4 s |
-| `dbt build` (40 tests) | OK | 25 s |
+| `dbt build` (40 nodos: semillas, modelos y tests) | OK | 25 s |
 | Frescura de los datos | OK | 6 s |
 | Resumen del run | OK | 2 s |
 
@@ -408,5 +408,29 @@ provincia) y AUC entre 0,90 y 0,92.
 - **Perfil de GitHub (GUAR-NIX)**: el observatorio aparece como proyecto principal con los enlaces a la app y al
   tablero.
 
-**Resultado final:** 11 fases, 8 ADR, 45 tests de Python, 40 tests de dbt, tres workflows en verde, una app y un
+**Resultado final:** 11 fases, 8 ADR, 45 tests de Python, 31 tests de dbt, tres workflows en verde, una app y un
 tablero públicos, a coste cero.
+
+## Mejora posterior · dbt incremental y publicación auditada (2026-11-24)
+
+**Problema.** Los tests se ejecutaban después de reemplazar los marts: un fallo ponía el run en rojo, pero lo malo ya estaba
+publicado.
+
+**Qué se hizo** ([ADR-0009](adr/ADR-0009-dbt-incremental-y-publicacion-auditada.md)): capa `audit`, compuerta con `dbt build`,
+incremental por periodo con marca de agua (`cargado_utc`) y huella de la lógica (`version_logica`).
+
+**Verificación** (PostgreSQL 18 desechable, sin tocar Neon)
+| Comprobación | Resultado |
+|---|---|
+| Resultado frente al anterior, con los 41 meses reales | 0 filas de diferencia en hecho, dimensión e indicadores |
+| Migración desde las tablas antiguas | sin `--full-refresh` |
+| Segunda ejecución sin cambios | 0 filas recalculadas |
+| Un mes recargado | 1.787 filas, solo ese mes |
+| 8 escenarios en `tests/test_dbt_incremental.py` | OK |
+| Control: quitar la compuerta | la prueba de la tasa que no cuadra falla, como debe |
+
+**Incidencias**
+- *«40 tests de dbt» era incorrecto.* 40 eran los nodos de `dbt build` (4 semillas, 6 modelos y 30 tests). Al contarlos con
+  `dbt ls --resource-type test` había **31 tests de datos**; con esta mejora son **37**. Se corrigió en toda la documentación.
+- *dbt no encadena un test con un modelo si algún padre del test no es ancestro del modelo.* El test contra el INEC depende de
+  una semilla, así que la compuerta también la referencia; sin eso no bloquearía.
