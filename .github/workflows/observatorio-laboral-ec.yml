@@ -5,6 +5,7 @@ on:
     paths: ["observatorio-laboral-ec/**", ".github/workflows/observatorio-laboral-ec.yml"]
   pull_request:
     paths: ["observatorio-laboral-ec/**", ".github/workflows/observatorio-laboral-ec.yml"]
+  workflow_dispatch:
 defaults:
   run:
     working-directory: observatorio-laboral-ec
