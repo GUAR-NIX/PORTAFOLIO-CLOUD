@@ -1,4 +1,4 @@
--- Falla si al agregar se pierde o duplica población: la suma de fexp del hecho debe igualar la de los microdatos.
+-- Compuerta de publicación (se ejecuta sobre el candidato). Falla si al agregar se pierde o duplica población: la suma de fexp del hecho debe igualar la de los microdatos.
 with micro as (
     select periodo, count(*) as encuestados, sum(factor_expansion) as poblacion
     from {{ ref('stg_enemdu__personas') }}
@@ -7,7 +7,7 @@ with micro as (
 
 hecho as (
     select periodo, sum(encuestados) as encuestados, sum(poblacion) as poblacion
-    from {{ ref('fct_mercado_laboral') }}
+    from {{ ref('aud_fct_mercado_laboral') }}
     group by periodo
 )
 

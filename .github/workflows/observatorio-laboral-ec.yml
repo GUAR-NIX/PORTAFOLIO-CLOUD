@@ -51,3 +51,38 @@ jobs:
       - name: Validar proyecto dbt
         working-directory: observatorio-laboral-ec/dbt
         run: dbt parse --profiles-dir .
+
+  dbt-incremental:
+    name: dbt incremental y publicación auditada (PostgreSQL)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci-sin-secretos
+          POSTGRES_DB: prueba
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci -d prueba" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Base desechable del propio job, con datos sintéticos: no se conecta a Neon.
+      DBT_PRUEBAS: "1"
+      PYTHONPATH: src
+      PGHOST: localhost
+      PGDATABASE: prueba
+      PGUSER: ci
+      PGPASSWORD: ci-sin-secretos
+      PGSSLMODE: disable
+      DBT_TARGET: dev
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: observatorio-laboral-ec/requirements*.txt
+      - run: pip install -r requirements-dev.txt
+      - name: 8 escenarios (mes nuevo, revisión, datos malos, tasa que no cuadra, cambio de lógica, migración)
+        run: pytest tests/test_dbt_incremental.py -rs
