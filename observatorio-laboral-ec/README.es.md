@@ -24,7 +24,7 @@ expansión, modelos de machine learning explicables, API, app web y monitorizaci
 | | |
 |---|---|
 | Datos | 41 meses de microdatos · 1,16 M de registros de personas · 559.089 de ocupados en el modelo |
-| Calidad | 20 de 20 tasas oficiales del INEC reproducidas al décimo (5 meses) · 40 tests de dbt · 50 tests de Python |
+| Calidad | 20 de 20 tasas oficiales del INEC reproducidas al décimo (5 meses) · 37 tests de dbt · 58 tests de Python (8 de integración con PostgreSQL) |
 | Modelo | AUC **0,910** en meses no vistos · tasa estimada a 0,4 puntos de la observada · AUC de 0,89 a 0,93 por sexo y área |
 | Pronóstico | Error medio **0,24 puntos** en el desempleo, 26 % mejor que la referencia |
 | Operación | Pipeline semanal · CI con puerta de calidad · Docker · monitor de deriva · coste 0 USD |
@@ -51,11 +51,11 @@ publicada coinciden en las 4 tasas con diferencia 0,0.
 dentro de la base: 0 duplicados y las tasas calculadas en SQL iguales a las del INEC (20 de 20).
 
 **Modelo estrella con dbt:** staging → intermediate → marts, con un hecho agregado de 73.630 filas (13 MB) y
-**40/40 tests en verde**, entre ellos uno que compara las tasas del mart con las oficiales del INEC. Ese test detectó
+**37 tests de datos en verde**, entre ellos uno que compara las tasas del mart con las oficiales del INEC. Ese test detectó
 un error real de doble redondeo antes de que llegara a ningún dashboard.
 
 **Pipeline automático:** cada lunes, GitHub Actions descarga los meses que el INEC haya publicado, los carga en Neon,
-ejecuta `dbt build` con los 40 tests, comprueba la frescura y publica un resumen con las últimas tasas. Primera ejecución en verde en la nube: **1 min 43 s**.
+ejecuta `dbt build` (audita el candidato y solo publica si pasan los tests de auditoría), comprueba la frescura y publica un resumen con las últimas tasas. Primera ejecución en verde en la nube: **1 min 43 s**.
 Cálculo: [`indicadores.py`](src/observatorio/indicadores.py) · validación: [`validar_tasas_oficiales.py`](scripts/validar_tasas_oficiales.py) ·
 variables: [diccionario](docs/datos/diccionario.md).
 
@@ -89,7 +89,7 @@ entrenamiento y AUC entre 0,90 y 0,92. → [Monitor](reports/monitoreo/README.md
 flowchart LR
   INEC["INEC · ENEMDU<br/>microdatos"] --> ING["Ingesta Python<br/>Parquet"]
   ING --> PG[("PostgreSQL<br/>Neon")]
-  PG --> DBT["dbt<br/>staging → marts<br/>40 tests"]
+  PG --> DBT["dbt<br/>staging → audit → marts<br/>37 tests"]
   DBT --> BI["Power BI<br/>Data Studio"]
   ING --> ML1["LightGBM + SHAP<br/>informalidad"]
   ING --> ML2["Pronóstico<br/>backtesting"]
@@ -107,7 +107,7 @@ flowchart LR
 | 0 · Base | Estructura, decisiones de arquitectura, entorno, CI | ✅ |
 | 1 · Comprensión de los datos | Fuentes, diccionario, factores de expansión, tasas oficiales reproducidas | ✅ |
 | 2 · Ingesta | Descarga automática e idempotente de 41 meses; carga en PostgreSQL (Neon) | ✅ |
-| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), 40 tests | ✅ |
+| 3 · Modelado (dbt) | staging → intermediate → marts (modelo estrella), incremental y con publicación auditada, 37 tests | ✅ |
 | 4 · Calidad y orquestación | Pipeline semanal en GitHub Actions: ingesta → carga → dbt → frescura | ✅ |
 | 5 · Análisis y BI | KPIs del mercado laboral en Power BI ([informe y capturas](bi/README.md)) y [tablero público en Data Studio](https://datastudio.google.com/reporting/a932a4c2-ecc6-4148-afd1-df75157ebdb0) | ✅ |
 | 6 · ML: informalidad | LightGBM explicable (SHAP), validación temporal y equidad · [ficha del modelo](reports/modelo_informalidad/README.md) | ✅ |
@@ -129,6 +129,7 @@ flowchart LR
 | [0006](docs/adr/ADR-0006-pronostico-desempleo.md) | Pronóstico: backtesting de origen móvil contra referencias ingenuas; intervalos empíricos |
 | [0007](docs/adr/ADR-0007-mlops-api-docker.md) | MLOps: MLflow, API FastAPI en Docker mínimo y CI que reentrena con puerta de calidad |
 | [0008](docs/adr/ADR-0008-monitoreo-deriva.md) | Monitor de deriva: PSI ponderado por el diseño muestral y calibración con media móvil de 3 meses |
+| [0009](docs/adr/ADR-0009-dbt-incremental-y-publicacion-auditada.md) | dbt incremental por periodo y publicación auditada: si un test falla, los marts no cambian |
 
 ## Cómo reproducirlo
 
